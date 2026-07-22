@@ -1,0 +1,37 @@
+[
+  {
+    "urn": "urn:li:dashboard:(looker,pnl_dashboard)",
+    "name": "pnl_dashboard",
+    "platform": "looker",
+    "description": "Executive P&L dashboard \u2014 consumes finance_pnl_dashboard_data",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "finance",
+      "dashboard",
+      "executive"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:eve",
+        "type": "TECHNICAL_OWNER"
+      }
+    ]
+  },
+  {
+    "urn": "urn:li:dashboard:(looker,pipeline_health)",
+    "name": "pipeline_health",
+    "platform": "looker",
+    "description": "Pipeline health monitoring dashboard",
+    "domain": "urn:li:domain:operations",
+    "tags": [
+      "operations",
+      "monitoring"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:charlie",
+        "type": "TECHNICAL_OWNER"
+      }
+    ]
+  }
+]

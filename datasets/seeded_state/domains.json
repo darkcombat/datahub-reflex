@@ -1,0 +1,12 @@
+[
+  {
+    "urn": "urn:li:domain:finance",
+    "name": "Finance",
+    "description": "Finance domain \u2014 financial transactions, ledger, P&L"
+  },
+  {
+    "urn": "urn:li:domain:operations",
+    "name": "Operations",
+    "description": "Operations domain \u2014 pipeline execution, monitoring"
+  }
+]

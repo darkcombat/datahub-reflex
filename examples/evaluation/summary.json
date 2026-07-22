@@ -1,0 +1,62 @@
+{
+  "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+  "overall_go_no_go": true,
+  "scenarios": {
+    "duplicate_rows": {
+      "go": true,
+      "gates": {
+        "all_known_incidents_detected": true,
+        "fpr_below_threshold": true,
+        "control_executes_on_both_assets": true,
+        "future_incident_produced": true
+      },
+      "key_metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "future_detected": true
+      }
+    },
+    "orphaned_ownership": {
+      "go": true,
+      "gates": {
+        "all_inactive_operational_owners_detected": true,
+        "historical_ownership_preserved": true,
+        "no_ownership_mutation_without_approval": true,
+        "service_accounts_not_incorrectly_removed": true,
+        "future_recurrence_detected": true
+      },
+      "key_metrics": {
+        "inactive_detected": 3,
+        "historical_preserved": 3,
+        "valid_replacements": 2
+      }
+    }
+  },
+  "baseline_comparison": {
+    "baseline_a_text_only": {
+      "can_produce_control": false,
+      "can_prevent_incident": false
+    },
+    "baseline_b_read_only": {
+      "can_propose_control": true,
+      "can_identify_assets": true,
+      "can_backtest": false,
+      "can_publish": false
+    },
+    "reflex": {
+      "can_propose_control": true,
+      "can_identify_assets": true,
+      "can_backtest": true,
+      "can_publish": true,
+      "can_detect_future": true
+    }
+  },
+  "gates": {
+    "setup_from_clean": "python -m datahub docker quickstart && python scripts/seed_live_datahub.py seed",
+    "seed_reset_work": true,
+    "e2e_tests_pass": true,
+    "cloud_assertion_not_required": true,
+    "writes_inspectable": true
+  }
+}

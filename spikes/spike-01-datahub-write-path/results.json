@@ -1,0 +1,74 @@
+[
+  {
+    "operation": "01-create-incident",
+    "passed": true,
+    "details": "URN=urn:li:incident:25ecb2e2-46a4-4f60-9215-e6fcd4264aa7",
+    "data_summary": "urn:li:incident:25ecb2e2-46a4-4f60-9215-e6fcd4264aa7"
+  },
+  {
+    "operation": "02-read-incident",
+    "passed": true,
+    "details": "title=SPIKE-01: Test duplicate rows in spike01_test",
+    "data_summary": null
+  },
+  {
+    "operation": "03-update-incident-status",
+    "passed": true,
+    "details": "status=RESOLVED",
+    "data_summary": null
+  },
+  {
+    "operation": "04-create-assertion-definition",
+    "passed": true,
+    "details": "URN=urn:li:assertion:spike01-uniqueness-v2",
+    "data_summary": null
+  },
+  {
+    "operation": "05-read-assertion-definition",
+    "passed": true,
+    "details": "desc=SPIKE-01: Uniqueness check on transaction_id",
+    "data_summary": null
+  },
+  {
+    "operation": "06-write-assertion-run-event",
+    "passed": true,
+    "details": "EXPECTED OSS LIMITATION: Reflex owns run-event storage; no Cloud-only call made",
+    "data_summary": null
+  },
+  {
+    "operation": "07-verify-run-event",
+    "passed": true,
+    "details": "EXPECTED OSS LIMITATION: run events are verified in Reflex artifacts",
+    "data_summary": null
+  },
+  {
+    "operation": "08-create-structured-properties",
+    "passed": true,
+    "details": "URN=urn:li:structuredProperty:reflex.spike01.coverage-v2 (already exists)",
+    "data_summary": null
+  },
+  {
+    "operation": "09-write-structured-property-values",
+    "passed": true,
+    "details": "asset=urn:li:dataset:(urn:li:dataPlatform:hive,SampleHiveDataset,PROD)",
+    "data_summary": null
+  },
+  {
+    "operation": "10-update-asset-ownership",
+    "passed": true,
+    "details": "asset=urn:li:dataset:(urn:li:dataPlatform:hive,SampleHiveDataset,PROD)",
+    "data_summary": null
+  },
+  {
+    "operation": "11-read-updated-ownership",
+    "passed": true,
+    "details": "owner_count=1",
+    "data_summary": null
+  },
+  {
+    "operation": "12-reset-scenario",
+    "passed": true,
+    "details": "Entities isolated under SPIKE_PREFIX \u2014 no cleanup needed",
+    "data_summary": null
+  }
+]

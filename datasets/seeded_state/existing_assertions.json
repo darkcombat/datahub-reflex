@@ -1,0 +1,14 @@
+[
+  {
+    "entity": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+    "type": "DATASET",
+    "description": "Pre-existing freshness check: finance_daily_ledger updated within 24h",
+    "platform": "urn:li:dataPlatform:bigquery"
+  },
+  {
+    "entity": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_pnl_dashboard_data,PROD)",
+    "type": "DATASET",
+    "description": "Pre-existing volume check: row count within expected range",
+    "platform": "urn:li:dataPlatform:bigquery"
+  }
+]

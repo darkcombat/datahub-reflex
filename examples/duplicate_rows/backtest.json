@@ -1,0 +1,29 @@
+{
+  "generated_by": "evaluation_harness",
+  "config": {
+    "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+    "random_seed": 42,
+    "dataset_version": "1.0.0",
+    "prompt_version": "mvp-template-v1",
+    "control_version": "1.0.0",
+    "model": "deterministic-template",
+    "environment": "synthetic",
+    "datahub_version": "oss-1.5.0.6"
+  },
+  "generated_at": "2026-07-22T14:47:37.433786+00:00",
+  "backtest_metrics": {
+    "known_incidents_detected": 2,
+    "normal_runs_accepted": 6,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "f1_score": 1.0,
+    "execution_failures": 0,
+    "similar_asset_selection_precision": 1.0,
+    "publication_success": true,
+    "future_incident_detected": true,
+    "control_executable": true
+  }
+}

@@ -1,0 +1,402 @@
+[
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_raw_transactions,PROD)",
+    "name": "finance_raw_transactions",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Raw financial transactions ingested from payment systems",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "pii",
+      "pci",
+      "finance",
+      "raw",
+      "append-only"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:alice",
+        "type": "TECHNICAL_OWNER"
+      },
+      {
+        "owner": "urn:li:corpuser:eve",
+        "type": "BUSINESS_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "transaction_id",
+        "type": "STRING",
+        "description": "Unique transaction identifier"
+      },
+      {
+        "name": "amount",
+        "type": "NUMERIC",
+        "description": "Transaction amount in USD"
+      },
+      {
+        "name": "currency",
+        "type": "STRING",
+        "description": "ISO 4217 currency code"
+      },
+      {
+        "name": "timestamp",
+        "type": "TIMESTAMP",
+        "description": "Transaction timestamp"
+      },
+      {
+        "name": "merchant_id",
+        "type": "STRING",
+        "description": "Merchant identifier"
+      },
+      {
+        "name": "status",
+        "type": "STRING",
+        "description": "Transaction status"
+      },
+      {
+        "name": "ingested_at",
+        "type": "TIMESTAMP",
+        "description": "Ingestion timestamp"
+      }
+    ],
+    "structured_properties": {
+      "reflex:write_pattern": "append-only",
+      "reflex:has_idempotency_key": "false"
+    }
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_transaction_enrichment,PROD)",
+    "name": "finance_transaction_enrichment",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Enriched transactions with merchant and category data",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "pii",
+      "finance",
+      "enriched"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:alice",
+        "type": "TECHNICAL_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "transaction_id",
+        "type": "STRING",
+        "description": "Unique transaction identifier"
+      },
+      {
+        "name": "amount",
+        "type": "NUMERIC",
+        "description": "Transaction amount in USD"
+      },
+      {
+        "name": "merchant_name",
+        "type": "STRING",
+        "description": "Resolved merchant name"
+      },
+      {
+        "name": "category",
+        "type": "STRING",
+        "description": "Spending category"
+      },
+      {
+        "name": "enriched_at",
+        "type": "TIMESTAMP",
+        "description": "Enrichment timestamp"
+      }
+    ],
+    "structured_properties": {
+      "reflex:write_pattern": "overwrite"
+    }
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+    "name": "finance_daily_ledger",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Daily aggregated financial ledger \u2014 PRIMARY TARGET for duplicate-row scenario",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "finance",
+      "ledger",
+      "aggregated",
+      "append-only"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:bob",
+        "type": "TECHNICAL_OWNER"
+      },
+      {
+        "owner": "urn:li:corpuser:eve",
+        "type": "BUSINESS_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "transaction_id",
+        "type": "STRING",
+        "description": "Unique transaction identifier"
+      },
+      {
+        "name": "ledger_date",
+        "type": "DATE",
+        "description": "Ledger date"
+      },
+      {
+        "name": "amount",
+        "type": "NUMERIC",
+        "description": "Transaction amount"
+      },
+      {
+        "name": "category",
+        "type": "STRING",
+        "description": "Spending category"
+      },
+      {
+        "name": "source",
+        "type": "STRING",
+        "description": "Source dataset"
+      }
+    ],
+    "structured_properties": {
+      "reflex:write_pattern": "append-only",
+      "reflex:has_idempotency_key": "false",
+      "reflex:source_incident": "urn:li:incident:dup-rows-001"
+    }
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_monthly_ledger,PROD)",
+    "name": "finance_monthly_ledger",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Monthly aggregated financial ledger \u2014 SECONDARY TARGET for duplicate-row propagation",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "finance",
+      "ledger",
+      "aggregated",
+      "append-only"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:bob",
+        "type": "TECHNICAL_OWNER"
+      },
+      {
+        "owner": "urn:li:corpgroup:finance_owners",
+        "type": "TECHNICAL_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "transaction_id",
+        "type": "STRING",
+        "description": "Unique transaction identifier"
+      },
+      {
+        "name": "ledger_month",
+        "type": "STRING",
+        "description": "Ledger month (YYYY-MM)"
+      },
+      {
+        "name": "amount",
+        "type": "NUMERIC",
+        "description": "Transaction amount"
+      },
+      {
+        "name": "category",
+        "type": "STRING",
+        "description": "Spending category"
+      }
+    ],
+    "structured_properties": {
+      "reflex:write_pattern": "append-only",
+      "reflex:has_idempotency_key": "false"
+    }
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,operations_pipeline_metrics,PROD)",
+    "name": "operations_pipeline_metrics",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Pipeline execution metrics and run history",
+    "domain": "urn:li:domain:operations",
+    "tags": [
+      "operations",
+      "monitoring",
+      "pipeline"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:charlie",
+        "type": "TECHNICAL_OWNER"
+      },
+      {
+        "owner": "urn:li:corpuser:svc_ingestion_pipeline",
+        "type": "TECHNICAL_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "pipeline_name",
+        "type": "STRING"
+      },
+      {
+        "name": "run_id",
+        "type": "STRING"
+      },
+      {
+        "name": "status",
+        "type": "STRING"
+      },
+      {
+        "name": "duration_seconds",
+        "type": "INTEGER"
+      },
+      {
+        "name": "rows_processed",
+        "type": "INTEGER"
+      }
+    ]
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,operations_incident_log,PROD)",
+    "name": "operations_incident_log",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Historical incident log for all data pipelines",
+    "domain": "urn:li:domain:operations",
+    "tags": [
+      "operations",
+      "incidents"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:diana",
+        "type": "TECHNICAL_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "incident_id",
+        "type": "STRING"
+      },
+      {
+        "name": "pipeline_name",
+        "type": "STRING"
+      },
+      {
+        "name": "severity",
+        "type": "STRING"
+      },
+      {
+        "name": "resolution",
+        "type": "STRING"
+      },
+      {
+        "name": "resolved_at",
+        "type": "TIMESTAMP"
+      }
+    ]
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_pnl_dashboard_data,PROD)",
+    "name": "finance_pnl_dashboard_data",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Aggregated P&L data for executive dashboard",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "finance",
+      "dashboard",
+      "pii"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:eve",
+        "type": "TECHNICAL_OWNER"
+      },
+      {
+        "owner": "urn:li:corpuser:alice",
+        "type": "BUSINESS_OWNER"
+      }
+    ],
+    "schema": [
+      {
+        "name": "report_date",
+        "type": "DATE"
+      },
+      {
+        "name": "revenue",
+        "type": "NUMERIC"
+      },
+      {
+        "name": "expenses",
+        "type": "NUMERIC"
+      },
+      {
+        "name": "net_income",
+        "type": "NUMERIC"
+      }
+    ]
+  },
+  {
+    "urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_compliance_audit,PROD)",
+    "name": "finance_compliance_audit",
+    "platform": "bigquery",
+    "env": "PROD",
+    "description": "Compliance audit trail for financial transactions \u2014 NO ACTIVE OWNER scenario asset",
+    "domain": "urn:li:domain:finance",
+    "tags": [
+      "finance",
+      "compliance",
+      "pii",
+      "pci"
+    ],
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:bob",
+        "type": "TECHNICAL_OWNER"
+      }
+    ],
+    "historical_owners": [
+      {
+        "owner": "urn:li:corpuser:alice",
+        "type": "TECHNICAL_OWNER",
+        "until": "2025-12-01"
+      }
+    ],
+    "schema": [
+      {
+        "name": "audit_id",
+        "type": "STRING"
+      },
+      {
+        "name": "transaction_id",
+        "type": "STRING"
+      },
+      {
+        "name": "audit_type",
+        "type": "STRING"
+      },
+      {
+        "name": "compliance_status",
+        "type": "STRING"
+      },
+      {
+        "name": "audited_at",
+        "type": "TIMESTAMP"
+      }
+    ],
+    "structured_properties": {
+      "reflex:has_active_owner": "false",
+      "reflex:owner_deactivated": "urn:li:corpuser:bob"
+    }
+  }
+]

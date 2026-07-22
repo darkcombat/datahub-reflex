@@ -1,0 +1,21 @@
+{
+  "config": {
+    "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+    "random_seed": 42,
+    "dataset_version": "1.0.0",
+    "prompt_version": "mvp-template-v1",
+    "control_version": "1.0.0",
+    "model": "deterministic-template",
+    "environment": "synthetic",
+    "datahub_version": "oss-1.5.0.6"
+  },
+  "scenario": "duplicate_rows",
+  "baseline": "text_only",
+  "can_propose_control": false,
+  "can_identify_correct_control_type": false,
+  "can_select_correct_target_field": false,
+  "can_identify_related_assets": false,
+  "can_produce_executable_control": false,
+  "can_prevent_second_incident": false,
+  "notes": "Baseline A has only incident text. Without DataHub graph information (schemas, lineage, domains, tags), the baseline cannot identify which assets share the same schema, which assets are in the same domain, or which assets have the vulnerable characteristics. It can propose a control type from the text alone, but cannot produce an executable control bound to a specific asset or field."
+}

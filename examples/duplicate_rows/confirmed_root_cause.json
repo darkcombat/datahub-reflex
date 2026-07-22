@@ -1,0 +1,16 @@
+{
+  "generated_by": "evaluation_harness",
+  "config": {
+    "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+    "random_seed": 42,
+    "dataset_version": "1.0.0",
+    "prompt_version": "mvp-template-v1",
+    "control_version": "1.0.0",
+    "model": "deterministic-template",
+    "environment": "synthetic",
+    "datahub_version": "oss-1.5.0.6"
+  },
+  "generated_at": "2026-07-22T14:47:37.433786+00:00",
+  "confirmed": true,
+  "approver": "alice@example.com"
+}

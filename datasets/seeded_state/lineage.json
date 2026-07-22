@@ -1,0 +1,34 @@
+[
+  {
+    "upstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_raw_transactions,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_transaction_enrichment,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_transaction_enrichment,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_monthly_ledger,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_monthly_ledger,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_pnl_dashboard_data,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_pnl_dashboard_data,PROD)",
+    "downstream": "urn:li:dashboard:(looker,pnl_dashboard)"
+  },
+  {
+    "upstream": "urn:li:dataJob:(airflow,finance_ingestion_dag,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_raw_transactions,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataJob:(airflow,finance_ledger_dag,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)"
+  },
+  {
+    "upstream": "urn:li:dataJob:(airflow,finance_ledger_dag,PROD)",
+    "downstream": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_monthly_ledger,PROD)"
+  }
+]

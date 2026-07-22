@@ -1,0 +1,10 @@
+{
+  "gms_url": "http://localhost:8080",
+  "datasets": {
+    "reflex_finance_raw_transactions": "urn:li:dataset:(urn:li:dataPlatform:bigquery,reflex_finance_raw_transactions,PROD)",
+    "reflex_finance_daily_ledger": "urn:li:dataset:(urn:li:dataPlatform:bigquery,reflex_finance_daily_ledger,PROD)",
+    "reflex_finance_monthly_ledger": "urn:li:dataset:(urn:li:dataPlatform:bigquery,reflex_finance_monthly_ledger,PROD)"
+  },
+  "tag": "urn:li:tag:reflex-demo-finance",
+  "incident": "urn:li:incident:714e8d9e-e280-4e10-be4a-c4648644447b"
+}

@@ -1,0 +1,302 @@
+[
+  {
+    "timestamp": "2026-07-14T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-7d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-15T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-6d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-16T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-5d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-17T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-4d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-18T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-3d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-19T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-2d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-20T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      }
+    ],
+    "description": "T-1d: All owners active"
+  },
+  {
+    "timestamp": "2026-07-21T18:49:47.316503+00:00",
+    "assets": [
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:bob",
+            "username": "bob",
+            "type": "TECHNICAL_OWNER",
+            "active": false
+          },
+          {
+            "urn": "urn:li:corpuser:alice",
+            "username": "alice",
+            "type": "BUSINESS_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.ledger,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:charlie",
+            "username": "charlie",
+            "type": "TECHNICAL_OWNER",
+            "active": true
+          }
+        ],
+        "domain": "finance"
+      },
+      {
+        "asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,marketing.campaigns,PROD)",
+        "owners": [
+          {
+            "urn": "urn:li:corpuser:diana",
+            "username": "diana",
+            "type": "TECHNICAL_OWNER",
+            "active": false
+          }
+        ],
+        "domain": "marketing"
+      }
+    ],
+    "description": "T-0: Bob deactivated. finance.transactions has no active TECHNICAL_OWNER. marketing.campaigns (diana) also orphaned."
+  }
+]

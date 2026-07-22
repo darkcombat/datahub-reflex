@@ -1,0 +1,28 @@
+[
+  {
+    "urn": "urn:li:dataJob:(airflow,finance_ingestion_dag,PROD)",
+    "name": "finance_ingestion_dag",
+    "platform": "airflow",
+    "description": "Ingests raw transactions and writes to finance_raw_transactions",
+    "domain": "urn:li:domain:operations",
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:svc_ingestion_pipeline",
+        "type": "TECHNICAL_OWNER"
+      }
+    ]
+  },
+  {
+    "urn": "urn:li:dataJob:(airflow,finance_ledger_dag,PROD)",
+    "name": "finance_ledger_dag",
+    "platform": "airflow",
+    "description": "Aggregates transactions into daily and monthly ledgers",
+    "domain": "urn:li:domain:operations",
+    "owners": [
+      {
+        "owner": "urn:li:corpuser:alice",
+        "type": "TECHNICAL_OWNER"
+      }
+    ]
+  }
+]

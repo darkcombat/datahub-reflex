@@ -1,0 +1,25 @@
+{
+  "config": {
+    "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+    "random_seed": 42,
+    "dataset_version": "1.0.0",
+    "prompt_version": "mvp-template-v1",
+    "control_version": "1.0.0",
+    "model": "deterministic-template",
+    "environment": "synthetic",
+    "datahub_version": "oss-1.5.0.6"
+  },
+  "scenario": "duplicate_rows",
+  "baseline": "read_only_datahub",
+  "can_propose_control": true,
+  "can_identify_correct_control_type": true,
+  "can_select_correct_target_field": true,
+  "can_identify_related_assets": true,
+  "can_produce_executable_control": false,
+  "can_backtest": false,
+  "can_publish": false,
+  "can_update_ownership": false,
+  "can_write_coverage": false,
+  "can_raise_later_incident": false,
+  "notes": "Baseline B can query DataHub for schemas, lineage, domains, and tags. It can identify the correct control type and similar assets. However, it cannot backtest the control against historical data, cannot publish controls to DataHub, and cannot write coverage metadata. The read-only baseline stops at analysis \u2014 it produces insight but no preventive action."
+}

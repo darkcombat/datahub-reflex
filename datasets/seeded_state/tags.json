@@ -1,0 +1,32 @@
+[
+  {
+    "urn": "urn:li:tag:pii",
+    "name": "pii",
+    "description": "Contains personally identifiable information"
+  },
+  {
+    "urn": "urn:li:tag:pci",
+    "name": "pci",
+    "description": "PCI-compliant payment data"
+  },
+  {
+    "urn": "urn:li:tag:finance",
+    "name": "finance",
+    "description": "Finance domain data"
+  },
+  {
+    "urn": "urn:li:tag:append-only",
+    "name": "append-only",
+    "description": "Dataset uses append-only write pattern"
+  },
+  {
+    "urn": "urn:li:tag:reflex:uniqueness-controlled",
+    "name": "reflex:uniqueness-controlled",
+    "description": "Covered by Reflex uniqueness control"
+  },
+  {
+    "urn": "urn:li:tag:reflex:ownership-controlled",
+    "name": "reflex:ownership-controlled",
+    "description": "Covered by Reflex ownership control"
+  }
+]

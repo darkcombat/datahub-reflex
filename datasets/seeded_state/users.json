@@ -1,0 +1,54 @@
+{
+  "users": [
+    {
+      "urn": "urn:li:corpuser:alice",
+      "username": "alice",
+      "full_name": "Alice Chen",
+      "email": "alice@example.com",
+      "active": true,
+      "title": "Senior Data Engineer"
+    },
+    {
+      "urn": "urn:li:corpuser:charlie",
+      "username": "charlie",
+      "full_name": "Charlie Kim",
+      "email": "charlie@example.com",
+      "active": true,
+      "title": "Data Platform Lead"
+    },
+    {
+      "urn": "urn:li:corpuser:eve",
+      "username": "eve",
+      "full_name": "Eve Johnson",
+      "email": "eve@example.com",
+      "active": true,
+      "title": "Finance Data Steward"
+    },
+    {
+      "urn": "urn:li:corpuser:bob",
+      "username": "bob",
+      "full_name": "Bob Martinez",
+      "email": "bob@example.com",
+      "active": false,
+      "title": "Former Data Engineer",
+      "deactivated_at": "2026-06-01T00:00:00Z"
+    },
+    {
+      "urn": "urn:li:corpuser:diana",
+      "username": "diana",
+      "full_name": "Diana Park",
+      "email": "diana@example.com",
+      "active": false,
+      "title": "Former Analytics Engineer",
+      "deactivated_at": "2026-05-15T00:00:00Z"
+    }
+  ],
+  "service_accounts": [
+    {
+      "urn": "urn:li:corpuser:svc_ingestion_pipeline",
+      "username": "svc_ingestion_pipeline",
+      "full_name": "Ingestion Pipeline Service Account",
+      "active": true
+    }
+  ]
+}

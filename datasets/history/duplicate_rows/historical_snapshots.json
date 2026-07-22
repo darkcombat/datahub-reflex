@@ -1,0 +1,500 @@
+[
+  {
+    "timestamp": "2026-07-14T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Clean data \u2014 no duplicates"
+  },
+  {
+    "timestamp": "2026-07-15T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Clean data \u2014 no duplicates"
+  },
+  {
+    "timestamp": "2026-07-16T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Clean data \u2014 no duplicates"
+  },
+  {
+    "timestamp": "2026-07-17T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Clean data \u2014 no duplicates"
+  },
+  {
+    "timestamp": "2026-07-18T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Clean data \u2014 no duplicates"
+  },
+  {
+    "timestamp": "2026-07-19T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:01Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:01Z"
+      }
+    ],
+    "description": "Partial ingestion failure \u2014 duplicates appear for TXN-003 and TXN-007"
+  },
+  {
+    "timestamp": "2026-07-20T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:01Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:01Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:01Z"
+      }
+    ],
+    "description": "Retry adds more duplicates \u2014 TXN-009 also duplicated"
+  },
+  {
+    "timestamp": "2026-07-21T18:49:47.309925+00:00",
+    "rows": [
+      {
+        "transaction_id": "TXN-001",
+        "amount": 150.0,
+        "timestamp": "2026-07-14T10:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-002",
+        "amount": 250.0,
+        "timestamp": "2026-07-14T11:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-003",
+        "amount": 75.5,
+        "timestamp": "2026-07-14T12:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-004",
+        "amount": 1000.0,
+        "timestamp": "2026-07-14T13:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-005",
+        "amount": 500.0,
+        "timestamp": "2026-07-14T14:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-006",
+        "amount": 320.0,
+        "timestamp": "2026-07-14T15:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-007",
+        "amount": 890.0,
+        "timestamp": "2026-07-14T16:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-008",
+        "amount": 45.0,
+        "timestamp": "2026-07-14T17:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-009",
+        "amount": 670.0,
+        "timestamp": "2026-07-14T18:00:00Z"
+      },
+      {
+        "transaction_id": "TXN-010",
+        "amount": 1100.0,
+        "timestamp": "2026-07-14T19:00:00Z"
+      }
+    ],
+    "description": "Incident resolved \u2014 duplicates cleaned"
+  }
+]

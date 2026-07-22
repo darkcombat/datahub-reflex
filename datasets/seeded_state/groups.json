@@ -1,0 +1,17 @@
+[
+  {
+    "urn": "urn:li:corpGroup:finance_owners",
+    "name": "Finance Owners",
+    "members": [
+      "alice",
+      "eve"
+    ]
+  },
+  {
+    "urn": "urn:li:corpGroup:data_platform",
+    "name": "Data Platform Team",
+    "members": [
+      "charlie"
+    ]
+  }
+]

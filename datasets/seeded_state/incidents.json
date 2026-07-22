@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Duplicate transactions detected in finance_daily_ledger",
+    "description": "On 2026-07-19, the finance_ledger_dag pipeline experienced a partial failure while writing to finance_daily_ledger. The Airflow retry mechanism re-ran the failed task, but the ingestion logic was not idempotent. This caused duplicate rows to be inserted into finance_daily_ledger. Approximately 340 duplicate transaction_ids were identified during reconciliation. PROPOSED ROOT CAUSE: The ingestion pipeline's retry logic does not use an idempotency key or deduplication step before writing. Append-only writes combined with non-idempotent retries produce duplicates.",
+    "custom_type": "DUPLICATE_ROWS",
+    "status": "RESOLVED",
+    "entities": [
+      "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)"
+    ]
+  },
+  {
+    "title": "Inactive owner bob detected on finance assets",
+    "description": "Bob Martinez was deactivated on 2026-06-01 but remains listed as TECHNICAL_OWNER of finance_daily_ledger, finance_monthly_ledger, and finance_compliance_audit. These assets have no active operational owner. PROPOSED ROOT CAUSE: The employee offboarding process does not update DataHub ownership assignments. There is no automated ownership review that detects inactive owners.",
+    "custom_type": "ORPHANED_OWNERSHIP",
+    "status": "RESOLVED",
+    "entities": [
+      "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)"
+    ]
+  }
+]

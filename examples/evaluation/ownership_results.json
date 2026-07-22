@@ -1,0 +1,36 @@
+{
+  "config": {
+    "evaluation_date": "2026-07-22T14:47:37.219442+00:00",
+    "random_seed": 42,
+    "dataset_version": "1.0.0",
+    "prompt_version": "mvp-template-v1",
+    "control_version": "1.0.0",
+    "model": "deterministic-template",
+    "environment": "synthetic",
+    "datahub_version": "oss-1.5.0.6"
+  },
+  "scenario": "orphaned_ownership",
+  "system": "reflex",
+  "metrics": {
+    "inactive_owners_detected": 3,
+    "valid_owners_preserved": true,
+    "service_accounts_correctly_classified": true,
+    "historical_ownership_preserved_count": 3,
+    "valid_fallback_owners_proposed": 2,
+    "assets_with_no_valid_candidate": 0,
+    "invalid_automatic_remediations": 0,
+    "approval_compliance": true,
+    "future_recurrence_detected": true,
+    "control_executable": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0
+  },
+  "go_no_go": {
+    "all_inactive_operational_owners_detected": true,
+    "historical_ownership_preserved": true,
+    "no_ownership_mutation_without_approval": true,
+    "service_accounts_not_incorrectly_removed": true,
+    "future_recurrence_detected": true
+  }
+}
