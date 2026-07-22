@@ -18,6 +18,10 @@ There are no BLOCKER or HIGH issues in the current register. The remaining
 technical items are MEDIUM/LOW maintenance and must not destabilize the two
 working MVP flows.
 
+The product target is defined in [docs/product_brief.md](product_brief.md):
+Reflex is an incident-to-control compilation product for DataHub-based data
+platform teams, not a general-purpose agent demo.
+
 ## Objectives
 
 Raise the submission from a working MVP to a credible, reproducible hackathon
