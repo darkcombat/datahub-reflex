@@ -312,6 +312,7 @@ A 2:58 video storyboard is available in [docs/storyboard.md](docs/storyboard.md)
 - 2:55-3:00 Repository and license
 
 See the final [submission checklist](docs/submission_checklist.md) before uploading to Devpost.
+Publishing instructions are in [docs/publish.md](docs/publish.md).
 
 ## 21. Roadmap
 
