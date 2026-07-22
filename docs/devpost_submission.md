@@ -102,7 +102,7 @@ python -m pytest -q tests/integration/test_live_datahub.py
 
 ## Links
 
-- Repository: `<PUBLIC_REPOSITORY_URL>`
+- Repository: https://github.com/darkcombat/datahub-reflex
 - Demo video: `<PUBLIC_VIDEO_URL>`
 - Architecture: `docs/architecture.md`
 - Evaluation: `docs/evaluation.md`

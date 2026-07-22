@@ -9,7 +9,7 @@ Create an empty public GitHub repository named `datahub-reflex`, then run from
 the project root:
 
 ```powershell
-.\scripts\publish_github.ps1 -RemoteUrl https://github.com/<GITHUB_USER>/datahub-reflex.git
+.\scripts\publish_github.ps1 -RemoteUrl https://github.com/darkcombat/datahub-reflex.git
 ```
 
 The script refuses to replace an existing remote, to publish a dirty working
@@ -23,7 +23,7 @@ files are already part of this repository.
 Use a new directory and run:
 
 ```powershell
-git clone https://github.com/<GITHUB_USER>/datahub-reflex.git
+git clone https://github.com/darkcombat/datahub-reflex.git
 cd datahub-reflex
 python -m pip install -e ".[dev]"
 python scripts/audit_submission.py

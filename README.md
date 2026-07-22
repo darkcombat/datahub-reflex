@@ -99,7 +99,7 @@ An employee is deactivated but remains TECHNICAL_OWNER of critical datasets. Ref
 
 ```bash
 # Clone and install
-git clone <YOUR_PUBLIC_REPOSITORY_URL>
+git clone https://github.com/darkcombat/datahub-reflex.git
 cd datahub-reflex
 pip install -e ".[dev]"
 

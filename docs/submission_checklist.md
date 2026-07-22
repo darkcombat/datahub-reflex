@@ -2,7 +2,7 @@
 
 ## Repository
 
-- [ ] Publish the repository publicly and record its URL
+- [x] Publish the repository publicly and record its URL: https://github.com/darkcombat/datahub-reflex
 - [x] Local Git history prepared on `main` (see [publish instructions](publish.md))
 - [x] One-command guarded GitHub publication script available
 - [x] Apache 2.0 license at repository root
