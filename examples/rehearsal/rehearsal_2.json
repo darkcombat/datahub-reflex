@@ -1,0 +1,29 @@
+{
+  "rehearsal": 2,
+  "date": "2026-07-23",
+  "git_commit": "6eb6a0cb7be28637967294685e39890316091b4f",
+  "repository_url": "https://github.com/darkcombat/datahub-reflex.git",
+  "python_version": "3.12.10",
+  "datahub_available": true,
+  "execution_mode": "synthetic (clean checkout from git archive HEAD)",
+  "audit": "PASS",
+  "offline_tests": "90/90 PASS",
+  "benchmark": "GO",
+  "demo": "PASS (both scenarios)",
+  "duration_seconds": 15,
+  "failures": [],
+  "manual_steps": [],
+  "differences_from_rehearsal_1": {
+    "audit": "identical",
+    "offline_tests": "identical (90/90)",
+    "benchmark": "identical (GO)",
+    "demo_both_scenarios": "identical (both complete with analogous detections)",
+    "control_type": "identical (uniqueness + active_ownership)",
+    "similar_assets_selected": "identical (same synthetic graph)",
+    "backtest_metrics": "identical (deterministic, seed=42)",
+    "approval_state": "identical (approved in test mode)",
+    "publication_state": "identical (reflex-owned)",
+    "future_detection": "identical (detected violations)"
+  },
+  "determinism_note": "All results identical between rehearsals. Control IDs differ due to timestamp-based hashing (expected, non-deterministic by design). Metrics, gates, and GO/NO-GO decisions are identical."
+}

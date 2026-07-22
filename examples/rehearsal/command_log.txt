@@ -1,0 +1,33 @@
+# Rehearsal Command Log — 2026-07-23
+
+## Rehearsal 1 (clean checkout from git archive HEAD)
+
+```
+git archive --format=tar --output=archive.tar HEAD
+tar -xf archive.tar
+pip install -e ".[dev]"
+python scripts/audit_submission.py                                    # PASS
+python -m pytest -q tests/unit tests/evaluation tests/ui              # 90/90 PASS (7s)
+python scripts/demo.py                                                # PASS (2.4s, both scenarios)
+python examples/evaluation/run_evaluation.py                          # GO
+python scripts/seed_live_datahub.py verify                            # 5 datasets
+python -m pytest -q tests/integration/test_live_datahub.py            # 8/8 PASS (16s)
+```
+
+## Rehearsal 2 (second clean checkout from git archive HEAD)
+
+```
+git archive --format=tar --output=archive.tar HEAD
+tar -xf archive.tar
+pip install -e ".[dev]"
+python scripts/audit_submission.py                                    # PASS
+python -m pytest -q tests/unit tests/evaluation tests/ui              # 90/90 PASS (7s)
+python scripts/demo.py                                                # PASS (both scenarios)
+python examples/evaluation/run_evaluation.py                          # GO
+```
+
+## Result
+
+Both rehearsals produce identical GO/NO-GO results. All metrics are deterministic
+(random seed=42). Control IDs differ due to timestamp-based hashing (expected).
+The project is ready to record.

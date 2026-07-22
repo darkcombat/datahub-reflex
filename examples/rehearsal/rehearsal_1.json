@@ -1,0 +1,23 @@
+{
+  "rehearsal": 1,
+  "date": "2026-07-23",
+  "git_commit": "6eb6a0cb7be28637967294685e39890316091b4f",
+  "repository_url": "https://github.com/darkcombat/datahub-reflex.git",
+  "python_version": "3.12.10",
+  "datahub_available": true,
+  "execution_mode": "synthetic (clean checkout from git archive HEAD)",
+  "audit": "PASS",
+  "offline_tests": "90/90 PASS",
+  "benchmark": "GO",
+  "demo": "PASS (both scenarios)",
+  "live_seed_verify": "5 datasets verified",
+  "live_integration_tests": "8/8 PASS",
+  "duration_seconds": 30,
+  "failures": [],
+  "manual_steps": [],
+  "visible_warnings": ["PydanticDeprecatedSince20 (non-blocking, future compatibility)"],
+  "analogous_incident_detected": true,
+  "approval_gates_explicit": true,
+  "oss_cloud_boundary_visible": true,
+  "synthetic_data_labeled": true
+}
