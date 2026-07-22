@@ -39,6 +39,26 @@ Integration tests in `tests/integration/` verify the live Reflex/DataHub paths. 
 - The REST endpoint `/openapi/assertions/v1/run` returns 404 in OSS v1.5.0.6.
 - GraphQL schema changes between versions (e.g., `IncidentStatus.type` → `IncidentStatus.state`).
 
+### 4a. DataHub OSS v1.5.0.6 GraphQL schema gaps (verified 2026-07-22)
+
+The following `DataHubReadClient` methods use GraphQL fields that are absent or renamed in DataHub OSS v1.5.0.6. These methods are **not in the critical path** for the two MVP live flows (duplicate rows and orphaned ownership), but they exist in the API surface and would fail if called against a live instance:
+
+| Method | Failure | Root cause |
+|--------|---------|------------|
+| `get_incident` | `Field 'incident' in type 'Query' is undefined` | Top-level `incident(urn:)` query field not available |
+| `list_resolved_incidents` | `Field 'type' in type 'IncidentStatus' is undefined` | Schema uses `state` not `type`; `entities` field removed |
+| `get_upstream_lineage` | `Field 'upstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
+| `get_downstream_lineage` | `Field 'downstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
+| `get_tags` | `Field 'tags' in type 'Entity' is undefined` | Needs `... on Dataset` inline fragment |
+| `get_structured_properties` | `Field 'structuredProperties' in type 'Entity' is undefined` | Needs `... on Dataset` inline fragment |
+| `get_assertion_definitions` | `Field 'description' in type 'Assertion' is undefined` | Schema uses different field name |
+
+**Methods verified working against v1.5.0.6**: `get_owners`, `get_domain`, `search_datasets`, `raise_incident`, `update_owner`, `add_tag`, `create_tag`, `searchAcrossEntities` (dataset queries).
+
+### 4b. Ownership type normalization in DataHub OSS v1.5.0.6
+
+When `addOwner` writes a `TECHNICAL_OWNER` ownership type, DataHub OSS v1.5.0.6 normalizes it to `NONE` on read-back. This is a DataHub OSS behavior, not a Reflex bug. The Phase4Pipeline live path documents this in code comments. Reflex does not fabricate the original type — it reports what DataHub returns.
+
 ### 5. Backtesting data is synthetic
 Historical snapshots are JSON files built by Reflex, not actual DataHub timeseries (`DatasetProfile`, `Operation` aspects). Production would read from DataHub's timeseries API.
 

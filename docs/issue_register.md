@@ -117,7 +117,58 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 - **Recommended action**: Investigate DataHub frontend separately; not a Reflex issue
 - **Acceptance criterion**: N/A — Reflex operates entirely through GMS API, not the frontend
 - **Critical path**: No
+---
 
+## Live DataHub Hardening Findings (2026-07-22)
+
+Findings from the Days 3-6 hardening phase. No BLOCKER or HIGH issues were found in the live DataHub paths.
+
+### MEDIUM
+
+| ID | Severity | Summary |
+|----|----------|---------|
+| MED-03 | MEDIUM | 7 `DataHubReadClient` methods use GraphQL fields absent in OSS v1.5.0.6 |
+
+#### MED-03 — Broken GraphQL queries in DataHubReadClient (not in critical path)
+
+- **Severity**: MEDIUM
+- **Evidence**: Verified against live DataHub OSS v1.5.0.6 on 2026-07-22. Methods `get_incident`, `list_resolved_incidents`, `get_upstream_lineage`, `get_downstream_lineage`, `get_tags`, `get_structured_properties`, `get_assertion_definitions` all fail with GraphQL validation errors (fields undefined or renamed).
+- **Affected file**: `reflex/datahub/read_client.py`
+- **Impact**: These methods are **not called by any live pipeline path** (Phase3Pipeline uses `DataHubSimilarityResolver` which calls `searchAcrossEntities`; Phase4Pipeline uses `search_datasets`, `get_owners`, `get_domain` — all verified working). The broken methods are dead code for MVP flows but exist in the public API surface and would confuse a developer.
+- **Recommended action**: Either fix the GraphQL queries against the v1.5.0.6 schema, or add `@deprecated` / `NotImplementedError` guards with clear documentation pointing to the working alternatives. Do not remove them without checking whether the synthetic evaluation path uses them (it may use in-memory data branches).
+- **Acceptance criterion**: Calling any broken method against a live DataHub instance either succeeds or raises a clear, documented error explaining the OSS limitation
+- **Critical path**: No — the two MVP live flows do not call these methods
+
+### LOW
+
+| ID | Severity | Summary |
+|----|----------|---------|
+| LOW-03 | LOW | Ownership type normalized to NONE by DataHub OSS on read-back |
+
+#### LOW-03 — DataHub OSS normalizes TECHNICAL_OWNER to NONE
+
+- **Severity**: LOW
+- **Evidence**: `addOwner` with `TECHNICAL_OWNER` type → `get_owners` returns `type: "NONE"`. Verified against live DataHub OSS v1.5.0.6.
+- **Affected files**: `reflex/datahub/write_client.py` (writes TECHNICAL_OWNER), `reflex/datahub/read_client.py` (reads NONE), `reflex/core/phase4_pipeline.py` (documents this in code comments)
+- **Impact**: Ownership type fidelity is lost on round-trip through DataHub OSS. Reflex already documents this and treats all owners conservatively.
+- **Recommended action**: No code change needed. Already documented in `docs/limits.md` section 4b and in Phase4Pipeline code comments.
+- **Acceptance criterion**: Documentation remains accurate
+- **Critical path**: No
+
+---
+
+## Summary (updated)
+
+| Severity | Count |
+|----------|-------|
+| BLOCKER  | 0     |
+| HIGH     | 0     |
+| MEDIUM   | 3     |
+| LOW      | 3     |
+| EXTERNAL | 3     |
+| **Total** | **9** |
+
+No BLOCKER or HIGH issues found. The live DataHub paths are reliable and inspectable for both MVP scenarios.
 ---
 
 ## Summary
