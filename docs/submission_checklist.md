@@ -4,6 +4,7 @@
 
 - [ ] Publish the repository publicly and record its URL
 - [x] Local Git history prepared on `main` (see [publish instructions](publish.md))
+- [x] One-command guarded GitHub publication script available
 - [x] Apache 2.0 license at repository root
 - [x] No secrets committed
 - [x] `.env.example` present

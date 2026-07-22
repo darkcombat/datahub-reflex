@@ -9,10 +9,11 @@ Create an empty public GitHub repository named `datahub-reflex`, then run from
 the project root:
 
 ```powershell
-git remote add origin https://github.com/<GITHUB_USER>/datahub-reflex.git
-git branch -M main
-git push -u origin main
+.\scripts\publish_github.ps1 -RemoteUrl https://github.com/<GITHUB_USER>/datahub-reflex.git
 ```
+
+The script refuses to replace an existing remote, to publish a dirty working
+tree, or to publish a branch other than `main`.
 
 Do not create an additional README, license, or `.gitignore` on GitHub: those
 files are already part of this repository.
