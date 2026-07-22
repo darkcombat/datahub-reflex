@@ -106,8 +106,8 @@ pip install -e ".[dev]"
 # Seed synthetic historical data (no DataHub required)
 python scripts/seed_history.py
 
-# Run unit and evaluation tests (no DataHub required)
-python -m pytest tests/unit/ tests/evaluation/ -v
+# Run unit, evaluation, and UI tests (no DataHub required)
+python -m pytest tests/unit/ tests/evaluation/ tests/ui/ -v
 
 # Run synthetic scenarios (no DataHub required)
 python examples/duplicate_rows/run_scenario.py
@@ -334,6 +334,6 @@ Future work:
 - DataHub timeseries integration for backtesting (replace JSON snapshots)
 - CI pipeline for live integration tests with automated DataHub instance
 
-## 19. License
+## 20. License
 
 Apache 2.0. See [LICENSE](LICENSE).

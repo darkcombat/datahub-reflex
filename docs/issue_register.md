@@ -1,7 +1,7 @@
-# DataHub Reflex — Baseline Issue Register
+# DataHub Reflex — Issue Register
 
-Generated: 2026-07-22
-Baseline commit: `9f0fe9f605592ecdd6878a47e9ae9d18df45152b`
+Generated: 2026-07-22 (updated 2026-07-23)
+Current commit: `b4eae24`
 Branch: `main`
 Remote: `https://github.com/darkcombat/datahub-reflex.git`
 
@@ -72,12 +72,11 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 #### MED-01 — Hardcoded test count in demo script
 
 - **Severity**: MEDIUM
-- **Evidence**: `scripts/demo.py` line 197: `print("  Tests: 86 passing (offline/UI/evaluation), 8 require live DataHub")`
+- **Status**: ✅ RESOLVED (2026-07-23, commit `d5c5538`)
+- **Evidence**: `scripts/demo.py` line 197 had `"Tests: 86 passing..."`
+- **Resolution**: Replaced with descriptive test location references. No hardcoded count.
 - **Affected file**: `scripts/demo.py`
-- **Impact**: If tests are added or removed during hardening (Days 3-6), the demo will report a stale count, reducing credibility
-- **Recommended action**: Replace the hardcoded string with a dynamic count (e.g., run `pytest --collect-only -q` and parse output) or remove the exact number and state the test locations instead
-- **Acceptance criterion**: Demo output matches actual test count, verified by running `python -m pytest --collect-only -q tests/unit tests/evaluation tests/ui`
-- **Critical path**: No — cosmetic, but should be fixed before demo recording (Day 18)
+- **Acceptance criterion**: Demo output does not contain stale numbers ✅
 
 #### MED-02 — Pydantic V2 deprecation warning
 
