@@ -25,8 +25,10 @@ from ui.demo_runner import (
     build_duplicate_rows_history,
     build_orphaned_ownership_history,
 )
+from reflex.api.routes import api_bp
 
 app = Flask(__name__)
+app.register_blueprint(api_bp)
 
 # -- Global demo runner (single-user demo) --
 _runner: DemoRunner | None = None

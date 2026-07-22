@@ -196,10 +196,13 @@ class LessonExtractor:
             output = await client.extract_lesson(extraction_input)
         except LLMFallbackProhibitedError:
             raise
-        except Exception:
+        except Exception as exc:
             if client.mode == "api":
                 raise
-            # Deterministic mode: fall through to built-in extraction
+            # Deterministic mode should never fail; re-raise to surface the bug
+            raise RuntimeError(
+                f"Deterministic extraction failed unexpectedly: {exc}"
+            ) from exc
 
         raw_output = output.result.model_dump_json()
         extraction = output.result
