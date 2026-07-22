@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, Field, ValidationError
@@ -135,14 +136,21 @@ class ExtractionRecord:
 class LessonExtractor:
     """Extracts structured lessons from incidents with human-confirmed root causes.
 
-    For the MVP, uses deterministic extraction rules based on incident type.
-    In production, this would use an LLM with structured output constrained
-    to the LessonExtractionResult schema.
+    Two modes via LLMClient:
+    - Deterministic: Template-based extraction (default, no network).
+    - API: Calls an external LLM API (requires REFLEX_LLM_MODE=api).
+
+    The pipeline never silently falls back from API to deterministic mode.
     """
 
-    def __init__(self, records_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        records_dir: Path | None = None,
+        llm_client: Any | None = None,
+    ) -> None:
         self._records_dir = records_dir or Path("./datasets/extractions")
         self._records_dir.mkdir(parents=True, exist_ok=True)
+        self._llm_client = llm_client
 
     async def extract(
         self,
@@ -159,21 +167,42 @@ class LessonExtractor:
         Returns both the ReflexLesson and the full extraction record for
         reproducibility.
         """
-        # Build the model input (what would be the LLM prompt)
-        model_input = self._build_prompt(
+        # Build input for the extraction
+        from reflex.core.llm_client import (
+            ExtractionInput,
+            LLMClient,
+            LLMFallbackProhibitedError,
+            create_llm_client,
+        )
+
+        extraction_input = ExtractionInput(
             incident_urn=incident_urn,
             incident_title=incident_title,
             incident_description=incident_description,
-            root_cause=human_confirmed_root_cause,
+            human_confirmed_root_cause=human_confirmed_root_cause,
             incident_custom_type=incident_custom_type,
         )
 
-        # Run extraction (template-based for MVP; LLM in production)
-        raw_output, extraction = self._run_extraction(
-            incident_custom_type=incident_custom_type,
-            root_cause=human_confirmed_root_cause,
-            incident_description=incident_description,
-        )
+        # Select client: injected > env var > default deterministic
+        client = self._llm_client
+        if client is None:
+            try:
+                client = create_llm_client()
+            except Exception:
+                client = create_llm_client("deterministic")
+
+        # Run extraction
+        try:
+            output = await client.extract_lesson(extraction_input)
+        except LLMFallbackProhibitedError:
+            raise
+        except Exception:
+            if client.mode == "api":
+                raise
+            # Deterministic mode: fall through to built-in extraction
+
+        raw_output = output.result.model_dump_json()
+        extraction = output.result
 
         # Validate
         validation_errors: list[str] = []
@@ -189,6 +218,15 @@ class LessonExtractor:
             validation_errors.extend(self._validate_extraction(parsed, incident_custom_type))
 
         # Build the record
+        model_input = json.dumps({
+            "incident_urn": incident_urn,
+            "incident_title": incident_title,
+            "incident_description": incident_description[:500],
+            "root_cause": human_confirmed_root_cause[:500],
+            "incident_custom_type": incident_custom_type,
+            "extraction_mode": output.extraction_mode,
+            "model": output.model_identifier,
+        })
         record = ExtractionRecord(
             incident_urn=incident_urn,
             root_cause_text=human_confirmed_root_cause,
