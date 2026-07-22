@@ -6,7 +6,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if ((git status --porcelain) -ne "") {
+$status = git status --porcelain
+if ($null -ne $status -and $status.Count -gt 0) {
     throw "Working tree is not clean. Commit or review changes before publishing."
 }
 
