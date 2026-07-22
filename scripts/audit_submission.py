@@ -18,6 +18,7 @@ REQUIRED_FILES = (
     "docs/evaluation.md",
     "docs/submission_checklist.md",
     "docs/devpost_submission.md",
+    "docs/product_development_backlog.md",
     "scripts/seed_live_datahub.py",
     "examples/evaluation/summary.json",
 )

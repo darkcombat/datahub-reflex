@@ -12,6 +12,7 @@
 - [x] `scripts/seed_live_datahub.py` documents live setup
 - [x] `scripts/audit_submission.py` passes the local artifact/security audit
 - [x] Devpost submission draft prepared in [docs/devpost_submission.md](devpost_submission.md)
+- [x] Product development backlog prepared in [docs/product_development_backlog.md](product_development_backlog.md)
 
 ## Functional verification
 

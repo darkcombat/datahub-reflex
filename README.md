@@ -316,6 +316,7 @@ Publishing instructions are in [docs/publish.md](docs/publish.md).
 The ready-to-submit Devpost text is in [docs/devpost_submission.md](docs/devpost_submission.md).
 The remaining execution schedule is in [docs/20_day_plan.md](docs/20_day_plan.md).
 The product positioning is in [docs/product_brief.md](docs/product_brief.md).
+The complete product backlog is in [docs/product_development_backlog.md](docs/product_development_backlog.md).
 
 ## 21. Roadmap
 
