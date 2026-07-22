@@ -3,6 +3,21 @@
 This plan assumes the technical MVP is already public and verified. The video
 is deliberately deferred until the product and the demo path are frozen.
 
+## Current status — 2026-07-23
+
+Completed through the rehearsal phase:
+
+- baseline and issue register;
+- live DataHub hardening;
+- evaluation improvements and negative cases;
+- UI/UX review;
+- repository and upstream-contribution analysis;
+- two clean-checkout rehearsals.
+
+There are no BLOCKER or HIGH issues in the current register. The remaining
+technical items are MEDIUM/LOW maintenance and must not destabilize the two
+working MVP flows.
+
 ## Objectives
 
 Raise the submission from a working MVP to a credible, reproducible hackathon
@@ -106,5 +121,7 @@ If time is lost, cut in this order:
 
 ## Immediate next task
 
-Run the baseline freeze: tag the current commit, execute the documented audit
-and tests, and create the issue list before changing product code.
+Perform a maintenance triage of the remaining MEDIUM issues. Decide whether
+the Pydantic deprecation warning and the unused OSS GraphQL read methods can be
+fixed safely without touching the critical live paths. If not, document them
+and leave the MVP frozen. Do not begin recording the video yet.

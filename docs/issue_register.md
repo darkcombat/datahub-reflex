@@ -38,7 +38,7 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 #### EXT-02 — Unchecked submission checklist items
 
 - **Severity**: EXTERNAL
-- **Evidence**: `docs/submission_checklist.md` has 5 unchecked items:
+  - **Evidence**: `docs/submission_checklist.md` has 4 unchecked items:
   - Record public demo video under three minutes
   - Verify the video URL is public
   - Re-run the full test commands and record outputs
