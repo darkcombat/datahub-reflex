@@ -309,6 +309,237 @@ It should call the same services used by the UI.
 
 ---
 
+## P1 — Frontend product experience
+
+The frontend is part of the product, not only a recording surface. It must
+help a data reliability engineer understand, approve, and audit the
+incident-to-control workflow.
+
+### P1.1 Product shell and navigation
+
+Provide a stable product shell with:
+
+- product name and current environment;
+- scenario selector;
+- live/synthetic mode indicator;
+- current incident/control identifier;
+- visible reset action;
+- link to provenance and limitations;
+- clear connection status for DataHub.
+
+The user must always know:
+
+- which scenario is open;
+- which mode is active;
+- which step is complete;
+- which action is currently required;
+- whether a mutation has occurred.
+
+### P1.2 Workflow stepper
+
+Represent the product workflow as an explicit stepper:
+
+```text
+Incident → Root cause → Lesson → Control → Assets → Backtest → Approval →
+Publication → Future detection
+```
+
+Each step needs these states:
+
+- not started;
+- in progress;
+- waiting for approval;
+- completed;
+- rejected;
+- failed;
+- unavailable because of an OSS limitation.
+
+Do not show a completed success state when the step only produced a proposal.
+
+### P1.3 Incident and lesson screens
+
+Show:
+
+- incident URN and readable title;
+- affected asset;
+- incident status;
+- proposed root cause;
+- human-confirmed root cause;
+- source evidence;
+- lesson category;
+- trigger;
+- vulnerable characteristics;
+- assumptions and limitations;
+- LLM mode, model, and prompt version when API mode is active.
+
+The UI must distinguish clearly between:
+
+- LLM proposal;
+- human-confirmed fact;
+- deterministic control output.
+
+### P1.4 Control and backtest screens
+
+Show:
+
+- typed control family;
+- target field or ownership rule;
+- deterministic definition;
+- control version;
+- historical run count;
+- detections;
+- precision;
+- recall;
+- false-positive rate;
+- execution failures;
+- threshold decision;
+- provenance of the historical data.
+
+Use visible labels:
+
+- `SYNTHETIC HISTORICAL DATA`;
+- `REFLEX-OWNED EXECUTION`;
+- `DATAHUB OSS STORAGE`;
+- `CLOUD-ONLY / NOT EXECUTED`.
+
+Never call Reflex backtesting “DataHub assertion execution”.
+
+### P1.5 Similar-asset evidence
+
+For each selected or rejected asset, show:
+
+- readable asset name and URN;
+- selected/rejected state;
+- score;
+- matched signals;
+- missing signals;
+- source metadata;
+- live or synthetic origin.
+
+The six MVP signals are:
+
+- same domain;
+- shared tags;
+- compatible schema;
+- append-only vulnerability;
+- similar lineage;
+- no existing control.
+
+Avoid unexplained confidence badges and opaque similarity scores.
+
+### P1.6 Approval experience
+
+Provide two unmistakable approval gates:
+
+1. root-cause approval;
+2. control/publication approval.
+
+Each gate must show:
+
+- what will happen next;
+- exact assets affected;
+- exact DataHub writes;
+- control/backtest evidence;
+- risk and limitations;
+- approver identity;
+- timestamp;
+- approve, revise, and reject actions.
+
+When an approval is pending, destructive or publishing actions must be
+disabled. Test-mode approval must be visibly labeled and must not resemble a
+real multi-user approval.
+
+### P1.7 Publication and future detection
+
+Show separately:
+
+- Reflex-owned artifacts;
+- DataHub OSS writes;
+- skipped Cloud-only operations;
+- read-back verification;
+- coverage status;
+- analogous asset;
+- executed control;
+- violation evidence;
+- new incident URN.
+
+The future detection result is the primary product payoff and must not be
+hidden below generic charts.
+
+### P1.8 Error, empty, and loading states
+
+Implement explicit states for:
+
+- DataHub unavailable;
+- GraphQL authentication failure;
+- transient network retry;
+- live query failure;
+- missing owner;
+- missing schema;
+- insufficient history;
+- failed backtest;
+- rejected approval;
+- unavailable OSS capability;
+- no similar assets;
+- no future violation.
+
+Every error must include:
+
+- human-readable explanation;
+- affected step;
+- whether a retry is safe;
+- next recommended action;
+- correlation/request identifier when available.
+
+Live mode must never silently switch to synthetic mode.
+
+### P1.9 Accessibility and responsive behavior
+
+Verify:
+
+- keyboard navigation;
+- visible focus state;
+- semantic buttons and headings;
+- accessible status labels;
+- sufficient color contrast;
+- non-color indication for approval/error states;
+- readable tables at narrow widths;
+- no critical information hidden on mobile or small recording windows;
+- reduced-motion compatibility.
+
+### P1.10 Frontend tests
+
+Add or maintain tests for:
+
+- both scenario selectors;
+- all workflow states;
+- root-cause approval/rejection;
+- control approval/rejection;
+- live/synthetic labels;
+- DataHub error state;
+- publication read-back state;
+- analogous detection state;
+- reset behavior;
+- no approval buttons after completion;
+- no stale hardcoded test counts.
+
+### Frontend exit criteria
+
+The frontend phase is complete only if:
+
+- a user can understand the workflow without reading source code;
+- both approvals are explicit;
+- live and synthetic modes are unmistakable;
+- DataHub OSS boundaries are visible;
+- similar-asset decisions are inspectable;
+- future detection is visible;
+- error and empty states are honest;
+- UI tests pass;
+- the layout is usable during a three-minute demo;
+- no generic dashboard or chat layer hides the product workflow.
+
+---
+
 ## P1 — Persistence and deployment readiness
 
 For the hackathon, keep the implementation small but define the migration
@@ -430,11 +661,12 @@ Before Devpost submission:
 
 1. LLM API provider abstraction and structured lesson extraction.
 2. Trust, provenance, and approval correctness.
-3. Product API boundary over the existing services.
-4. Evaluation repeatability and cost/error reporting.
-5. Security and repository quality.
-6. One focused upstream contribution.
-7. Final rehearsal, video, and Devpost submission.
+3. Frontend product experience and error states.
+4. Product API boundary over the existing services.
+5. Evaluation repeatability and cost/error reporting.
+6. Security and repository quality.
+7. One focused upstream contribution.
+8. Final rehearsal, video, and Devpost submission.
 
 Do not add a new scenario or control family before all P0 items are complete.
 
