@@ -314,6 +314,7 @@ A 2:58 video storyboard is available in [docs/storyboard.md](docs/storyboard.md)
 See the final [submission checklist](docs/submission_checklist.md) before uploading to Devpost.
 Publishing instructions are in [docs/publish.md](docs/publish.md).
 The ready-to-submit Devpost text is in [docs/devpost_submission.md](docs/devpost_submission.md).
+The remaining execution schedule is in [docs/20_day_plan.md](docs/20_day_plan.md).
 
 ## 21. Roadmap
 
