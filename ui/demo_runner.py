@@ -571,6 +571,9 @@ class DemoRunner:
             self.state.completed_at = datetime.now(UTC).isoformat()
             return self.state
 
+        if self.state.is_complete:
+            return self.state
+
         self.state.error = f"Unexpected approval state at step {self.state.current_step}."
         return self.state
 

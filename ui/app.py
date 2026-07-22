@@ -312,7 +312,7 @@ function renderDetail(n, state) {
         '<span style="color:' + rcColor + ';font-weight:600">' + rcState.toUpperCase() + '</span>' +
         (state.confirmed_by ? ' &mdash; ' + state.confirmed_by : '') +
         (state.root_cause_approval_timestamp ? '<br><span style="font-size:0.7rem;color:var(--muted)">' + state.root_cause_approval_timestamp + '</span>' : '') +
-        (rcState === 'pending' ? '<br><button class="btn" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Root Cause</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>' : '');
+        (rcState === 'pending' && !state.is_complete ? '<br><button class="btn" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Root Cause</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>' : '');
     case 3: // Lesson
       if (!state.lesson_id) return '<em style="color:var(--muted)">Extracting lesson...</em>';
       return '<strong>' + state.lesson_title + '</strong> <code style="font-size:0.75rem">(' + state.lesson_id + ')</code><br>' +
@@ -369,7 +369,7 @@ function renderDetail(n, state) {
       if (state.approval_test_mode) ahtml2 += ' <span class="badge badge-synthetic">TEST MODE</span>';
       if (state.approval_timestamp) ahtml2 += '<br><span style="font-size:0.7rem;color:var(--muted)">' + state.approval_timestamp + '</span>';
       if (state.approval_notes) ahtml2 += '<br><span style="font-size:0.75rem;color:var(--muted)">' + state.approval_notes + '</span>';
-      if (state.approval_state === 'pending') ahtml2 += '<br><button class="btn btn-primary" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Publication</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>';
+      if (state.approval_state === 'pending' && !state.is_complete) ahtml2 += '<br><button class="btn btn-primary" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Publication</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>';
       return ahtml2;
     case 8: // Publication
       if (state.publication_count === undefined || state.publication_count === null)
