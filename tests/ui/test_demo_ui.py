@@ -297,12 +297,12 @@ class TestUIHtmlContent:
         assert "Resolved Incident" in html
         assert "Human-Confirmed Root Cause" in html
         assert "Structured Lesson" in html
-        assert "Proposed Preventive Control" in html
+        assert "Preventive Control" in html
         assert "Similar Assets" in html
         assert "Backtest Metrics" in html
-        assert "Approval Action" in html
+        assert "Publication Approval" in html
         assert "DataHub Publication" in html
-        assert "Analogous Future Detection" in html
+        assert "Future Incident Detection" in html
 
     def test_html_labels_synthetic_data(self, client):
         """Synthetic data is clearly labeled in the UI."""

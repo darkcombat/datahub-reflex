@@ -68,7 +68,7 @@
 **Visual**: Show what Reflex IS and IS NOT. Bullet points.
 **Voiceover**: "DataHub Reflex is not self-healing. It is not fully autonomous. It is not production-safe. It does not claim zero false positives or universal prevention. What it does: converts human-confirmed operational lessons into backtested, executable preventive controls propagated through the DataHub graph. Two scenarios. Six similarity signals. Mandatory human approval. Reflex-owned execution."
 
-**Show**: Apache 2.0 license badge. Test count: 86 offline/UI/evaluation tests passing, plus 8 live DataHub integration checks when GMS is running.
+**Show**: Apache 2.0 license badge. Test suite: 90 offline tests passing (unit/evaluation/UI), plus 8 live DataHub integration checks when GMS is running.
 
 ---
 

@@ -194,7 +194,8 @@ async def main_cli() -> None:
     print("  Similarity resolution: 6 signals, synthetic mode")
     print("  Historical data: SYNTHETIC (JSON snapshots)")
     print("")
-    print("  Tests: 86 passing (offline/UI/evaluation), 8 require live DataHub")
+    print("  Offline tests: tests/unit + tests/evaluation + tests/ui")
+    print("  Live DataHub tests: tests/integration/ (requires running DataHub)")
     print("  UI: python -m ui.app  ->  http://localhost:5000")
     print(f"{'=' * 60}")
 

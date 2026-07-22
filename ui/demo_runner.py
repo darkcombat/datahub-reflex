@@ -38,10 +38,13 @@ class DemoState:
     incident_urn: str = ""
     incident_title: str = ""
     incident_description: str = ""
+    incident_affected_asset: str = ""
 
     # Step 2: Human-confirmed root cause
     root_cause: str = ""
     confirmed_by: str = ""
+    root_cause_approval_state: str = ""  # pending | approved | rejected
+    root_cause_approval_timestamp: str = ""
 
     # Step 3: Structured lesson
     lesson_id: str = ""
@@ -49,11 +52,15 @@ class DemoState:
     failure_pattern: str = ""
     vulnerable_characteristics: list[str] = field(default_factory=list)
     lesson_confidence: str = ""
+    lesson_assumptions: list[str] = field(default_factory=list)
+    lesson_limitations: list[str] = field(default_factory=list)
+    lesson_provenance: str = ""
 
     # Step 4: Proposed preventive control
     control_id: str = ""
     control_type: str = ""
     control_definition: str = ""
+    control_target_field: str = ""
 
     # Step 5: Similar assets + signals
     similar_assets: list[dict[str, Any]] = field(default_factory=list)
@@ -64,18 +71,28 @@ class DemoState:
     backtest_detections: int = 0
     backtest_precision: float = 0.0
     backtest_recall: float = 0.0
+    backtest_fpr: float = 0.0
+    backtest_false_positives: int = 0
+    backtest_false_negatives: int = 0
+    backtest_execution_failures: int = 0
     backtest_would_have_prevented: bool = False
     backtest_results_detail: list[dict[str, Any]] = field(default_factory=list)
+    backtest_data_provenance: str = "SYNTHETIC (JSON snapshots)"
 
     # Step 7: Approval
     approval_state: str = "pending"  # pending | approved | rejected
     approval_approver: str = ""
     approval_notes: str = ""
+    approval_timestamp: str = ""
+    approval_test_mode: bool = False
 
     # Step 8: DataHub publication
     publication_assets: list[str] = field(default_factory=list)
     publication_count: int = 0
     publication_mode: str = "reflex-owned"  # "reflex-owned" | "live-datahub"
+    publication_skipped_cloud: list[str] = field(default_factory=list)
+    publication_reflex_owned: list[str] = field(default_factory=list)
+    publication_datahub_owned: list[str] = field(default_factory=list)
 
     # Step 9: Analogous future incident detection
     detection_assets_checked: int = 0
@@ -86,6 +103,7 @@ class DemoState:
     error: str = ""
     is_complete: bool = False
     is_demo_mode: bool = False
+    mode_label: str = "SYNTHETIC MODE"  # "SYNTHETIC MODE" | "LIVE DATAHUB MODE"
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +130,8 @@ class DemoRunner:
         self.state = DemoState(
             similarity_mode="live-datahub" if use_live_datahub else "synthetic",
             publication_mode="live-datahub" if use_live_datahub else "reflex-owned",
+            mode_label="LIVE DATAHUB MODE" if use_live_datahub else "SYNTHETIC MODE",
+            backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context: dict[str, Any] = {}
 
@@ -120,6 +140,8 @@ class DemoRunner:
         self.state = DemoState(
             similarity_mode="live-datahub" if self.use_live_datahub else "synthetic",
             publication_mode="live-datahub" if self.use_live_datahub else "reflex-owned",
+            mode_label="LIVE DATAHUB MODE" if self.use_live_datahub else "SYNTHETIC MODE",
+            backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context = {}
 
@@ -139,7 +161,23 @@ class DemoRunner:
         self.state.incident_urn = incident_urn
         self.state.root_cause = human_confirmed_root_cause
         self.state.confirmed_by = confirmed_by
+        self.state.incident_affected_asset = target_asset_urn
         self.state.current_step = 1
+        self.state.publication_skipped_cloud = [
+            "upsertAssertion (removed in OSS v1.5.0.6)",
+            "assertion run events (REST endpoint 404s in OSS v1.5.0.6)",
+        ]
+        self.state.publication_reflex_owned = [
+            "Assertion definitions",
+            "Backtest run events",
+            "Control execution results",
+        ]
+        self.state.publication_datahub_owned = [
+            "Incidents (raiseIncident)",
+            "Ownership updates (addOwner)",
+            "Tags (createTag/addTag)",
+            "Structured properties",
+        ]
 
         # Map scenario to incident title/description
         if scenario == "duplicate_rows":
@@ -371,6 +409,8 @@ class DemoRunner:
                 self.state.error = "Approval rejected; no ownership plan was published."
                 return self.state
             if self.state.current_step == 2:
+                self.state.root_cause_approval_state = "approved"
+                self.state.root_cause_approval_timestamp = datetime.now(UTC).isoformat()
                 root = await phase4.step2_approve_root_cause(incident_urn, approver)
                 lesson, _ = await phase4.step3_extract_lesson(
                     incident_urn, self._phase3_context["incident_title"],
@@ -426,10 +466,13 @@ class DemoRunner:
             self.state.approval_state = "rejected"
             self.state.approval_approver = approver
             self.state.approval_notes = notes or "Rejected by human approver."
+            self.state.approval_timestamp = datetime.now(UTC).isoformat()
             self.state.error = "Approval rejected; no lesson or control was published."
             return self.state
 
         if self.state.current_step == 2:
+            self.state.root_cause_approval_state = "approved"
+            self.state.root_cause_approval_timestamp = datetime.now(UTC).isoformat()
             root_approval = await phase3.step2_approve_root_cause(
                 incident_urn=incident_urn,
                 approver=approver,

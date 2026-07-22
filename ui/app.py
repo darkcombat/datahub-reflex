@@ -222,7 +222,7 @@ footer { text-align: center; padding: 2rem; font-size: 0.75rem; color: var(--mut
 
 <footer>
   DataHub Reflex Demo &mdash; explicit human approval required.
-  All state is real application state. Synthetic data and Reflex-owned execution are labeled.
+  <span id="mode-footer"></span>
 </footer>
 
 <script>
@@ -230,20 +230,26 @@ const STEP_LABELS = [
   {num:1, title:"Resolved Incident", owner:"DataHub OSS"},
   {num:2, title:"Human-Confirmed Root Cause", owner:"Reflex"},
   {num:3, title:"Structured Lesson", owner:"Reflex"},
-  {num:4, title:"Proposed Preventive Control", owner:"Reflex"},
-  {num:5, title:"Similar Assets &amp; Signals", owner:"Reflex"},
-  {num:6, title:"Backtest Metrics", owner:"Reflex-owned"},
-  {num:7, title:"Approval Action", owner:"Reflex"},
+  {num:4, title:"Preventive Control", owner:"Reflex"},
+  {num:5, title:"Similar Assets & Signals", owner:"Reflex"},
+  {num:6, title:"Backtest Metrics", owner:"Reflex-owned execution"},
+  {num:7, title:"Publication Approval", owner:"Reflex"},
   {num:8, title:"DataHub Publication", owner:"DataHub OSS"},
-  {num:9, title:"Analogous Future Detection", owner:"Reflex"},
+  {num:9, title:"Future Incident Detection", owner:"Reflex"},
 ];
 
 let currentState = null;
 
 function badge(owner) {
-  if (owner.includes('Reflex')) return '<span class="badge badge-reflex">Reflex</span>';
-  if (owner.includes('DataHub')) return '<span class="badge badge-datahub">DataHub</span>';
+  if (owner.includes('Reflex')) return '<span class="badge badge-reflex">REFLEX</span>';
+  if (owner.includes('DataHub')) return '<span class="badge badge-datahub">DATAHUB OSS</span>';
   return '';
+}
+
+function modeBadge(mode) {
+  if (mode === 'live-datahub' || mode === 'LIVE DATAHUB MODE')
+    return '<span class="badge" style="background:var(--datahub);color:#fff">LIVE DATAHUB</span>';
+  return '<span class="badge badge-synthetic">SYNTHETIC</span>';
 }
 
 function renderSteps(state) {
@@ -251,8 +257,16 @@ function renderSteps(state) {
   const container = document.getElementById('steps');
   const currentStep = state.current_step || 0;
   const hasError = !!state.error;
+  const mode = state.mode_label || state.similarity_mode || 'synthetic';
 
-  let html = '';
+  // Mode banner
+  let html = '<div style="padding:0.75rem 1rem;margin-bottom:1rem;border-radius:6px;' +
+    'background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);text-align:center;font-size:0.85rem">' +
+    modeBadge(mode) +
+    ' <span style="color:var(--muted);margin-left:0.5rem">| Historical data: ' +
+    (state.backtest_data_provenance || 'SYNTHETIC (JSON snapshots)') +
+    ' | Execution: Reflex-owned | Assertion storage: Reflex-owned (OSS v1.5.0.6)</span></div>';
+
   for (let i = 0; i < STEP_LABELS.length; i++) {
     const s = STEP_LABELS[i];
     const n = s.num;
@@ -260,22 +274,23 @@ function renderSteps(state) {
     if (hasError && n > currentStep) cls += '';
     else if (n < currentStep) cls += ' done';
     else if (n === currentStep) cls += ' active';
-    html += `<div class="${cls}">`;
-    html += `<div class="step-header"><div class="step-number">${n}</div>`;
-    html += `<div class="step-title">${s.title} ${badge(s.owner)}</div></div>`;
-    html += `<div class="step-detail">${renderDetail(n, state)}</div>`;
-    html += `</div>`;
+    html += '<div class="' + cls + '">';
+    html += '<div class="step-header"><div class="step-number">' + n + '</div>';
+    html += '<div class="step-title">' + s.title + ' ' + badge(s.owner) + '</div></div>';
+    html += '<div class="step-detail">' + renderDetail(n, state) + '</div>';
+    html += '</div>';
   }
 
   if (hasError) {
-    html += `<div class="step active"><div class="step-header" style="color:var(--red)">`;
-    html += `⚠ Pipeline Error</div>`;
-    html += `<div class="step-detail" style="color:var(--red)">${state.error}</div></div>`;
+    html += '<div class="step active"><div class="step-header" style="color:var(--red)">';
+    html += '&#9888; Pipeline Error</div>';
+    html += '<div class="step-detail" style="color:var(--red)">' + state.error + '</div></div>';
   }
 
   container.innerHTML = html;
+  document.getElementById('mode-footer').innerHTML =
+    '| ' + modeBadge(mode) + ' | Explicit human approval required |';
 
-  // Show/hide error box
   const errBox = document.getElementById('error');
   if (hasError) { errBox.style.display = 'block'; errBox.textContent = 'Error: ' + state.error; }
   else errBox.style.display = 'none';
@@ -284,84 +299,114 @@ function renderSteps(state) {
 function renderDetail(n, state) {
   switch (n) {
     case 1: // Incident
-      if (!state.incident_title) return `<em style="color:var(--muted)">Awaiting incident input...</em>`;
-      return state.incident_title
-        ? `<strong>${state.incident_title}</strong><br>${state.incident_description}<br>
-           <span style="font-size:0.75rem;color:var(--muted)">URN: ${state.incident_urn}</span>`
-        : `<em style="color:var(--muted)">Awaiting incident input...</em>`;
+      if (!state.incident_title) return '<em style="color:var(--muted)">Select scenario and run demo...</em>';
+      return '<strong>' + state.incident_title + '</strong><br>' +
+        '<span style="font-size:0.8rem;color:var(--muted)">' + state.incident_description + '</span><br>' +
+        '<span style="font-size:0.75rem;color:var(--muted)">URN: <code>' + state.incident_urn + '</code></span>' +
+        (state.incident_affected_asset ? '<br><span style="font-size:0.75rem;color:var(--muted)">Affected: <code>' + state.incident_affected_asset + '</code></span>' : '');
     case 2: // Root Cause
-      return state.root_cause
-        ? `<strong>Root cause:</strong> ${state.root_cause}<br>
-           <span style="font-size:0.75rem">Confirmed by: ${state.confirmed_by}</span>`
-        : `<em style="color:var(--muted)">Awaiting human root cause confirmation...</em>`;
+      if (!state.root_cause) return '<em style="color:var(--muted)">Awaiting root cause submission...</em>';
+      var rcState = state.root_cause_approval_state || (state.current_step >= 2 ? 'approved' : 'pending');
+      var rcColor = rcState === 'approved' ? 'var(--green)' : rcState === 'rejected' ? 'var(--red)' : 'var(--amber)';
+      return '<strong>Root cause:</strong> ' + state.root_cause + '<br>' +
+        '<span style="color:' + rcColor + ';font-weight:600">' + rcState.toUpperCase() + '</span>' +
+        (state.confirmed_by ? ' &mdash; ' + state.confirmed_by : '') +
+        (state.root_cause_approval_timestamp ? '<br><span style="font-size:0.7rem;color:var(--muted)">' + state.root_cause_approval_timestamp + '</span>' : '') +
+        (rcState === 'pending' ? '<br><button class="btn" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Root Cause</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>' : '');
     case 3: // Lesson
-      return state.lesson_id
-        ? `<strong>${state.lesson_title}</strong> (${state.lesson_id})<br>
-           Failure pattern: <code>${state.failure_pattern}</code><br>
-           Confidence: ${state.lesson_confidence}<br>
-           Vulnerable: ${(state.vulnerable_characteristics||[]).join(', ') || 'none'}`
-        : `<em style="color:var(--muted)">Extracting lesson...</em>`;
+      if (!state.lesson_id) return '<em style="color:var(--muted)">Extracting lesson...</em>';
+      return '<strong>' + state.lesson_title + '</strong> <code style="font-size:0.75rem">(' + state.lesson_id + ')</code><br>' +
+        'Failure: <code>' + state.failure_pattern + '</code> | Confidence: ' + state.lesson_confidence + '<br>' +
+        'Vulnerable: ' + ((state.vulnerable_characteristics||[]).join(', ') || 'none') +
+        (state.lesson_assumptions && state.lesson_assumptions.length ? '<br><span style="font-size:0.7rem;color:var(--muted)">Assumptions: ' + state.lesson_assumptions.join('; ') + '</span>' : '') +
+        (state.lesson_limitations && state.lesson_limitations.length ? '<br><span style="font-size:0.7rem;color:var(--muted)">Limitations: ' + state.lesson_limitations.join('; ') + '</span>' : '');
     case 4: // Control
-      return state.control_id
-        ? `<strong>Type:</strong> ${state.control_type} &nbsp;
-           <span class="badge badge-reflex">Reflex-owned execution</span><br>
-           <strong>ID:</strong> ${state.control_id}<br>
-           <strong>Definition:</strong> <code style="font-size:0.75rem">${state.control_definition}</code>`
-        : `<em style="color:var(--muted)">Synthesizing control...</em>`;
+      if (!state.control_id) return '<em style="color:var(--muted)">Synthesizing control...</em>';
+      return '<span class="badge badge-reflex">REFLEX-OWNED EXECUTION</span><br>' +
+        '<strong>Type:</strong> ' + state.control_type +
+        (state.control_target_field ? ' | <strong>Target:</strong> <code>' + state.control_target_field + '</code>' : '') + '<br>' +
+        '<strong>ID:</strong> <code style="font-size:0.7rem">' + state.control_id + '</code><br>' +
+        '<strong>Definition:</strong> <code style="font-size:0.7rem;word-break:break-all">' + (state.control_definition||'').substring(0,200) + '</code>';
     case 5: // Similar Assets
       if (!state.similar_assets || state.similar_assets.length === 0)
-        return `<em style="color:var(--muted)">Discovering similar assets...</em>
-          <br><span class="badge badge-synthetic">SYNTHETIC</span>
-          <span style="font-size:0.75rem;color:var(--muted)">${state.similarity_mode} mode</span>`;
-      let ahtml = `<span class="badge badge-synthetic">${state.similarity_mode.toUpperCase()}</span><br>`;
-      state.similar_assets.forEach(a => {
-        ahtml += `<div class="asset-row">
-          <strong>${(a.asset_urn||'').split(',').pop()||a.asset_urn}</strong>
-          <span style="color:var(--muted)"> &mdash; ${a.confidence||'?'} confidence</span><br>
-          <span style="font-size:0.75rem;color:var(--muted)">${a.rationale||''}</span>
-          </div>`;
+        return '<em style="color:var(--muted)">Discovering similar assets...</em><br>' +
+          modeBadge(state.similarity_mode) + ' <span style="font-size:0.75rem;color:var(--muted)">6-signal resolution</span>';
+      var ahtml = modeBadge(state.similarity_mode) + ' <span style="font-size:0.75rem;color:var(--muted)">| Signals: same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control</span><br>';
+      state.similar_assets.forEach(function(a) {
+        var name = (a.asset_urn||'').split(',').pop()||a.asset_urn||'';
+        ahtml += '<div class="asset-row"><strong>' + name + '</strong>';
+        if (a.score !== undefined) ahtml += ' <span style="color:var(--muted)">score: ' + (typeof a.score === 'number' ? a.score.toFixed(2) : a.score) + '</span>';
+        if (a.confidence) ahtml += ' <span style="color:var(--muted)">| ' + a.confidence + '</span>';
+        if (a.rationale) ahtml += '<br><span style="font-size:0.75rem;color:var(--muted)">' + a.rationale + '</span>';
+        if (a.matched_signals && a.matched_signals.length) ahtml += '<br><span style="font-size:0.7rem;color:var(--green)">Matched: ' + a.matched_signals.join(', ') + '</span>';
+        if (a.missing_signals && a.missing_signals.length) ahtml += ' <span style="font-size:0.7rem;color:var(--red)">Missing: ' + a.missing_signals.join(', ') + '</span>';
+        if (a.domain) ahtml += ' <span style="font-size:0.7rem;color:var(--muted)">| domain: ' + a.domain + '</span>';
+        ahtml += '</div>';
       });
       return ahtml;
     case 6: // Backtest
       if (!state.backtest_snapshots)
-        return `<em style="color:var(--muted)">Running backtest against synthetic historical data...</em>`;
-      let mhtml = `<span class="badge badge-synthetic">SYNTHETIC HISTORICAL DATA</span><br>
-        <div class="metrics">
-          <div class="metric"><div class="val">${state.backtest_snapshots}</div>snapshots</div>
-          <div class="metric"><div class="val">${state.backtest_detections}</div>detections</div>
-          <div class="metric"><div class="val">${(state.backtest_precision*100).toFixed(0)}%</div>precision</div>
-          <div class="metric"><div class="val">${(state.backtest_recall*100).toFixed(0)}%</div>recall</div>
-          <div class="metric"><div class="val">${state.backtest_would_have_prevented ? '✅' : '❌'}</div>prevented</div>
-        </div>`;
+        return '<em style="color:var(--muted)">Running backtest...</em>';
+      var mhtml = '<span class="badge badge-reflex">REFLEX-OWNED EXECUTION</span> ' +
+        '<span class="badge badge-synthetic">' + (state.backtest_data_provenance||'SYNTHETIC HISTORICAL DATA') + '</span><br>' +
+        '<div class="metrics">' +
+          '<div class="metric"><div class="val">' + state.backtest_snapshots + '</div>snapshots</div>' +
+          '<div class="metric"><div class="val">' + state.backtest_detections + '</div>detections</div>' +
+          '<div class="metric"><div class="val">' + (state.backtest_precision*100).toFixed(0) + '%</div>precision</div>' +
+          '<div class="metric"><div class="val">' + (state.backtest_recall*100).toFixed(0) + '%</div>recall</div>' +
+          '<div class="metric"><div class="val">' + (state.backtest_fpr !== undefined ? (state.backtest_fpr*100).toFixed(0) + '%' : '0%') + '</div>FPR</div>' +
+          '<div class="metric"><div class="val">' + (state.backtest_would_have_prevented ? '&#10004;' : '&#10008;') + '</div>prevented</div>' +
+        '</div>' +
+        '<span style="font-size:0.7rem;color:var(--muted)">FP: ' + (state.backtest_false_positives||0) +
+        ' | FN: ' + (state.backtest_false_negatives||0) +
+        ' | Exec errors: ' + (state.backtest_execution_failures||0) + '</span>';
       return mhtml;
     case 7: // Approval
-      if (!state.approval_state) return `<em style="color:var(--muted)">Awaiting approval...</em>`;
-      let acolor = state.approval_state === 'approved' ? 'var(--green)' : state.approval_state === 'rejected' ? 'var(--red)' : 'var(--amber)';
-      return `<strong style="color:${acolor}">${state.approval_state.toUpperCase()}</strong>
-        ${state.approval_approver ? ` &mdash; ${state.approval_approver}` : ''}<br>
-        <span style="font-size:0.75rem;color:var(--muted)">${state.approval_notes || ''}</span>
-        ${state.approval_state === 'pending' ? `<br><button class="btn" onclick="approve('approved')" style="margin-top:0.5rem">Approve</button>
-        <button class="btn btn-danger" onclick="approve('rejected')" style="margin-top:0.5rem">Reject</button>` : ''}`;
+      if (!state.approval_state) return '<em style="color:var(--muted)">Awaiting approval...</em>';
+      var acolor = state.approval_state === 'approved' ? 'var(--green)' : state.approval_state === 'rejected' ? 'var(--red)' : 'var(--amber)';
+      var ahtml2 = '<strong style="color:' + acolor + '">' + state.approval_state.toUpperCase() + '</strong>';
+      if (state.approval_approver) ahtml2 += ' &mdash; <code>' + state.approval_approver + '</code>';
+      if (state.approval_test_mode) ahtml2 += ' <span class="badge badge-synthetic">TEST MODE</span>';
+      if (state.approval_timestamp) ahtml2 += '<br><span style="font-size:0.7rem;color:var(--muted)">' + state.approval_timestamp + '</span>';
+      if (state.approval_notes) ahtml2 += '<br><span style="font-size:0.75rem;color:var(--muted)">' + state.approval_notes + '</span>';
+      if (state.approval_state === 'pending') ahtml2 += '<br><button class="btn btn-primary" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Publication</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>';
+      return ahtml2;
     case 8: // Publication
       if (state.publication_count === undefined || state.publication_count === null)
-        return `<em style="color:var(--muted)">Publishing to DataHub...</em>`;
-      if (!state.publication_count)
-        return `<span class="badge badge-reflex">REFLEX-OWNED</span>
-          <span style="font-size:0.75rem;color:var(--muted)">Assertion definitions and run events stored in Reflex (DataHub OSS v1.5.0.6 endpoints unavailable).</span>`;
-      return `<strong>${state.publication_count} assets</strong> published
-        <span class="badge badge-datahub">DataHub OSS</span><br>
-        ${(state.publication_assets||[]).slice(0,5).map(a => `<div class="asset-row">${a}</div>`).join('')}`;
+        return '<em style="color:var(--muted)">Publishing to DataHub...</em>';
+      var phtml = '';
+      if (state.publication_count > 0) {
+        phtml += '<strong>' + state.publication_count + ' assets</strong> published <span class="badge badge-datahub">DATAHUB OSS</span><br>';
+        (state.publication_assets||[]).slice(0,5).forEach(function(a) { phtml += '<div class="asset-row"><code style="font-size:0.65rem">' + a + '</code></div>'; });
+      } else {
+        phtml += '<span class="badge badge-reflex">REFLEX-OWNED</span> ';
+        phtml += '<span style="font-size:0.75rem;color:var(--muted)">Assertion definitions & run events stored in Reflex (OSS endpoints unavailable).</span><br>';
+      }
+      if (state.publication_datahub_owned && state.publication_datahub_owned.length) {
+        phtml += '<span class="badge badge-datahub" style="font-size:0.65rem">DATAHUB OSS WRITES</span> ';
+        phtml += '<span style="font-size:0.7rem;color:var(--muted)">' + state.publication_datahub_owned.join(', ') + '</span><br>';
+      }
+      if (state.publication_reflex_owned && state.publication_reflex_owned.length) {
+        phtml += '<span class="badge badge-reflex" style="font-size:0.65rem">REFLEX-OWNED</span> ';
+        phtml += '<span style="font-size:0.7rem;color:var(--muted)">' + state.publication_reflex_owned.join(', ') + '</span><br>';
+      }
+      if (state.publication_skipped_cloud && state.publication_skipped_cloud.length) {
+        phtml += '<span class="badge badge-err" style="font-size:0.65rem">CLOUD-ONLY / NOT EXECUTED</span> ';
+        phtml += '<span style="font-size:0.7rem;color:var(--red)">' + state.publication_skipped_cloud.join(', ') + '</span>';
+      }
+      return phtml;
     case 9: // Detection
       if (state.detection_assets_checked === undefined || state.detection_assets_checked === null)
-        return `<em style="color:var(--muted)">Running detection on similar assets...</em>`;
-      let dhtml = `<strong>${state.detection_assets_checked} assets</strong> checked<br>`;
-      (state.detection_violations||[]).forEach(v => {
-        dhtml += `<div class="asset-row">
-          ${v.passed ? '✅' : '❌'} ${(v.asset_urn||'').split(',').pop()||v.asset_urn}
-          ${!v.passed ? `<span class="badge badge-err">${v.violation_count||0} violations</span>` : ''}
-          </div>`;
+        return '<em style="color:var(--muted)">Running detection on similar assets...</em>';
+      var dhtml = '<strong>' + state.detection_assets_checked + ' assets</strong> checked<br>';
+      (state.detection_violations||[]).forEach(function(v) {
+        var name = (v.asset_urn||'').split(',').pop()||v.asset_urn||'';
+        dhtml += '<div class="asset-row">' +
+          (v.passed ? '&#10004; PASSED' : '&#10008; VIOLATION') + ' <code>' + name + '</code>';
+        if (!v.passed && v.violation_count) dhtml += ' <span class="badge badge-err">' + v.violation_count + ' violations</span>';
+        dhtml += '</div>';
       });
-      if (!state.detection_violations.length) dhtml += '<span style="color:var(--muted)">No violations detected.</span>';
+      if (!(state.detection_violations||[]).length) dhtml += '<span style="color:var(--muted);font-size:0.8rem">No violations detected.</span>';
       return dhtml;
     default:
       return '';
