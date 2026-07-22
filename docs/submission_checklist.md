@@ -35,7 +35,7 @@
 
 - [ ] Record public demo video under three minutes
 - [ ] Verify the video URL is public
-- [ ] Run the demo from a clean checkout
+- [x] Run the demo from a clean checkout (audit, CLI demo, and 86-test suite passed)
 - [ ] Re-run the full test commands and record outputs
 - [ ] Confirm Devpost category: `Agents That Do Real Work`
 - [ ] Add final repository URL and video URL to the Devpost submission
