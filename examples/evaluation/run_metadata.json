@@ -1,0 +1,31 @@
+{
+  "evaluation_date": "2026-07-22T15:57:45.050945+00:00",
+  "git_commit": "0f7f8eeaf564140403a8057efa9f6137da791cd0",
+  "python_version": "3.12.10",
+  "dataset_version": "1.0.0",
+  "scenario_version": "mvp-template-v1",
+  "random_seed": 42,
+  "model": "deterministic-template",
+  "prompt_version": "mvp-template-v1",
+  "control_version": "1.0.0",
+  "threshold_configuration": {
+    "min_similarity_score": 0.2,
+    "max_false_positive_rate": 0.1,
+    "max_similar_candidates": 10
+  },
+  "datahub_version": "oss-1.5.0.6",
+  "execution_mode": "synthetic",
+  "command": "python examples/evaluation/run_evaluation.py",
+  "temporal_boundary": "backtest window ends before future detection; FUTURE_DETECTION_GAP=1 day",
+  "negative_cases": {
+    "duplicate_rows": "clean_monthly_no_duplicates -- 25 unique transaction IDs",
+    "orphaned_ownership": "clean_ownership_all_active -- all owners active"
+  },
+  "data_leakage_controls": {
+    "future_data_not_in_lesson": "Future detection data is passed only to detection step, not lesson extraction",
+    "labels_not_in_control_generator": "Expected labels are not passed to control synthesis",
+    "temporal_isolation": "Backtest window ends at T-0; future detection at T+1",
+    "baseline_input_isolation": "Baselines receive only permitted inputs per docs/evaluation.md"
+  },
+  "sample_size_note": "Sample size is too small for meaningful statistical inference. Results are on the synthetic benchmark only."
+}

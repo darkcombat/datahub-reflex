@@ -1,5 +1,5 @@
 {
-  "evaluation_date": "2026-07-22T15:25:38.775549+00:00",
+  "evaluation_date": "2026-07-22T15:57:45.050945+00:00",
   "overall_go_no_go": true,
   "scenarios": {
     "duplicate_rows": {
@@ -11,10 +11,32 @@
         "future_incident_produced": true
       },
       "key_metrics": {
+        "total_historical_runs": 8,
+        "normal_runs": 6,
+        "known_incident_runs": 2,
+        "true_positives": 2,
+        "false_positives": 0,
+        "true_negatives": 6,
+        "false_negatives": 0,
         "precision": 1.0,
         "recall": 1.0,
-        "fpr": 0.0,
-        "future_detected": true
+        "false_positive_rate": 0.0,
+        "execution_failures": 0,
+        "analogous_asset_selection_precision": 1.0,
+        "future_incident_detected": true,
+        "publication_success": true
+      },
+      "negative_case": {
+        "go": true,
+        "gates": {
+          "no_false_positives_on_clean_data": true
+        },
+        "key_metrics": {
+          "total_rows": 25,
+          "unique_transaction_ids": 25,
+          "violations_on_clean_dataset": 0,
+          "no_false_positives_on_clean": true
+        }
       }
     },
     "orphaned_ownership": {
@@ -27,26 +49,92 @@
         "future_recurrence_detected": true
       },
       "key_metrics": {
-        "inactive_detected": 3,
-        "historical_preserved": 3,
-        "valid_replacements": 2
+        "total_historical_snapshots": 8,
+        "inactive_owners_detected": 3,
+        "false_inactive_detections": 0,
+        "service_accounts_preserved": true,
+        "valid_groups_preserved": true,
+        "historical_ownership_preserved_count": 3,
+        "valid_replacements_proposed": 2,
+        "invalid_replacements": 0,
+        "approval_compliance": true,
+        "future_recurrence_detected": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      },
+      "negative_case": {
+        "go": true,
+        "gates": {
+          "no_false_positives_on_clean_data": true
+        },
+        "key_metrics": {
+          "future_assets_checked": 1,
+          "inactive_owners_detected_on_clean": 0,
+          "no_false_positives": true
+        }
       }
     }
   },
+  "capability_matrix": [
+    {
+      "capability": "propose_control",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": true,
+      "Reflex": true
+    },
+    {
+      "capability": "identify_similar_assets",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": true,
+      "Reflex": true
+    },
+    {
+      "capability": "execute_control",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": false,
+      "Reflex": true
+    },
+    {
+      "capability": "backtest",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": false,
+      "Reflex": true
+    },
+    {
+      "capability": "publish_coverage",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": false,
+      "Reflex": true
+    },
+    {
+      "capability": "detect_future_incident",
+      "Baseline A (text-only)": false,
+      "Baseline B (read-only DataHub)": false,
+      "Reflex": true
+    }
+  ],
   "baseline_comparison": {
     "baseline_a_text_only": {
-      "can_produce_control": false,
-      "can_prevent_incident": false
+      "can_propose_control": false,
+      "can_identify_assets": false,
+      "can_execute": false,
+      "can_backtest": false,
+      "can_publish": false,
+      "can_detect_future": false
     },
     "baseline_b_read_only": {
       "can_propose_control": true,
       "can_identify_assets": true,
+      "can_execute": false,
       "can_backtest": false,
-      "can_publish": false
+      "can_publish": false,
+      "can_detect_future": false
     },
     "reflex": {
       "can_propose_control": true,
       "can_identify_assets": true,
+      "can_execute": true,
       "can_backtest": true,
       "can_publish": true,
       "can_detect_future": true
