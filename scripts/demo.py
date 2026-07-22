@@ -57,7 +57,8 @@ SEPARATOR = "=" * 60
 
 
 async def run_scenario(name: str, scenario: str, incident_urn: str, root_cause: str,
-                       target: str, history: list, **kwargs) -> dict:
+                       target: str, history: list, current_data: list | dict | None = None,
+                       **kwargs) -> dict:
     """Run a single scenario and print results."""
     print(f"\n{SEPARATOR}")
     print(f"  DataHub Reflex -- {name}")
@@ -78,6 +79,7 @@ async def run_scenario(name: str, scenario: str, incident_urn: str, root_cause: 
         confirmed_by="demo-user@reflex",
         target_asset_urn=target,
         historical_data=history,
+        current_data=current_data,
         **kwargs,
     )
 
@@ -113,8 +115,8 @@ async def run_scenario(name: str, scenario: str, incident_urn: str, root_cause: 
     print(f"       Recall:     {summary.detection_rate:.1%}")
     print(f"       Prevented:  {'[OK] YES' if summary.would_have_prevented else '[X] NO'}")
 
-    print("\n[7/9] Approval: APPROVED (demo-mode)")
-    print("       In production: requires explicit human decision file.")
+    print("\n[7/9] Approval: APPROVED (offline test-mode)")
+    print("       This CLI path uses test mode; the UI path requires explicit human approval.")
 
     print("\n[8/9] DataHub Publication:")
     pub = result.get("publication_result")
@@ -157,6 +159,10 @@ async def main_cli() -> None:
         root_cause="Non-idempotent retry logic in the ingestion pipeline caused duplicate inserts on partial failure.",
         target="urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
         history=build_duplicate_rows_history(8),
+        current_data=[
+            [{"transaction_id": "TXN-003", "amount": 300.0},
+             {"transaction_id": "TXN-003", "amount": 300.0}]
+        ],
         uniqueness_columns=["transaction_id"],
     )
 
@@ -168,6 +174,10 @@ async def main_cli() -> None:
         root_cause="Employee offboarding did not trigger ownership reassignment. Inactive owners remained on critical datasets.",
         target="urn:li:dataset:(urn:li:dataPlatform:bigquery,finance.transactions,PROD)",
         history=build_orphaned_ownership_history(8),
+        current_data=[[
+            {"owner": "bob", "type": "TECHNICAL_OWNER", "active": False},
+            {"owner": "alice", "type": "TECHNICAL_OWNER", "active": True},
+        ]],
     )
 
     # Summary
@@ -184,7 +194,7 @@ async def main_cli() -> None:
     print("  Similarity resolution: 6 signals, synthetic mode")
     print("  Historical data: SYNTHETIC (JSON snapshots)")
     print("")
-    print("  Tests: 89 passing (offline), 21 require live DataHub")
+    print("  Tests: 86 passing (offline/UI/evaluation), 8 require live DataHub")
     print("  UI: python -m ui.app  ->  http://localhost:5000")
     print(f"{'=' * 60}")
 
