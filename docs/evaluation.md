@@ -14,42 +14,94 @@ Each scenario was tested with 8 historical snapshots and compared against two ba
 - **Reflex**: Full loop with backtesting, approval, publication, future detection
 
 All data is synthetic. Results do not imply production generalization.
+Sample size (8 snapshots per scenario) is too small for meaningful statistical inference.
+
+**Negative cases**: Each scenario includes a clean-data test where the control
+must produce zero false positives. Duplicate rows negative case: 25 unique
+transaction IDs with no duplicates. Ownership negative case: all owners active
+on operations_pipeline_metrics.
+
+**Data leakage controls**: Future incident data is never passed to lesson
+extraction. Labels are not passed to control synthesis. Backtest window ends
+at T-0; future detection uses data at T+1. Baselines receive only permitted
+inputs.
+
+## Capability matrix
+
+| Capability | Baseline A (text-only) | Baseline B (read-only DataHub) | Reflex |
+|-----------|----------------------|-------------------------------|--------|
+| Propose control | No | Yes | Yes |
+| Identify similar assets | No | Yes | Yes |
+| Execute control | No | No | Yes |
+| Backtest | No | No | Yes |
+| Publish coverage | No | No | Yes |
+| Detect future incident | No | No | Yes |
 
 ## Scenario 1: Duplicate Rows
 
-| Metric | Baseline A | Baseline B | Reflex |
-|--------|-----------|-----------|--------|
-| Incident understood | ✅ | ✅ | ✅ |
-| Root cause confirmed | ❌ (no gate) | ❌ (no gate) | ✅ (mandatory approval) |
-| Similar assets discovered | 0 | 0 | 5 |
-| Backtest snapshots | 0 | 0 | 8 |
-| Historical detections | — | — | 2 (T-2, T-1) |
-| Precision | — | — | 100% |
-| Recall (detection rate) | — | — | 25% |
-| Would have prevented | — | — | ✅ |
-| False positives | — | — | 0 |
-| Control published | ❌ | ❌ | ✅ (Reflex-owned) |
-| Analogous violations detected | ❌ | ❌ | 3 on finance_monthly_ledger |
+| Metric | Value |
+|--------|-------|
+| Total historical runs | 8 |
+| Normal runs | 6 |
+| Known incident runs | 2 |
+| True positives | 2 |
+| False positives | 0 |
+| True negatives | 6 |
+| False negatives | 0 |
+| Precision | 100% |
+| Recall | 100% |
+| False-positive rate | 0% |
+| Execution failures | 0 |
+| Analogous asset selection precision | 100% |
+| Future incident detected | Yes (3 violations on finance_monthly_ledger) |
+| Publication success | Yes |
+| Negative case (no false positives on clean data) | Passed |
 
-**Key finding**: The UniquenessControl detected duplicates at the exact timestamps (T-2 and T-1) where the original incident occurred. Zero false positives across all 8 snapshots. After publication, the control detected 3 analogous duplicate transaction IDs on a similar asset (finance_monthly_ledger).
+**Key finding**: The UniquenessControl detected duplicates at the exact timestamps
+(T-2 and T-1) where the original incident occurred. Zero false positives across
+all 8 snapshots. After publication, the control detected 3 analogous duplicate
+transaction IDs on a similar asset (finance_monthly_ledger). On the negative
+case (25 unique transaction IDs), zero violations were reported.
 
 ## Scenario 2: Orphaned Ownership
 
-| Metric | Baseline A | Baseline B | Reflex |
-|--------|-----------|-----------|--------|
-| Incident understood | ✅ | ✅ | ✅ |
-| Root cause confirmed | ❌ (no gate) | ❌ (no gate) | ✅ (mandatory approval) |
-| Inactive owner identified | — | — | bob (deactivated T-1) |
-| Similar orphaned assets | 0 | 0 | 2 |
-| Backtest snapshots | 0 | 0 | 8 |
-| Historical detections | — | — | 1 (T-1) |
-| Precision | — | — | 100% |
-| Would have prevented | — | — | ✅ |
-| Replacement candidates | ❌ | ❌ | Domain-based proposals |
-| Historical ownership preserved | ❌ | ❌ | ✅ |
-| Publication | ❌ | ❌ | ✅ (Reflex-owned) |
+| Metric | Value |
+|--------|-------|
+| Total historical snapshots | 8 |
+| Inactive owners detected | 3 |
+| False inactive-owner detections | 0 |
+| Service accounts preserved | Yes |
+| Valid groups preserved | Yes |
+| Historical ownership preserved count | 2 |
+| Valid replacements proposed | 2 |
+| Invalid replacements | 0 |
+| Approval compliance | Yes |
+| Future recurrence detected | Yes |
+| Precision | 100% |
+| Recall | 100% |
+| False-positive rate | 0% |
+| Negative case (no false positives on clean data) | Passed |
 
-**Key finding**: The ActiveOwnershipControl detected bob's deactivation at T-1 and proposed domain-based replacement candidates for affected assets. Historical ownership records were preserved throughout.
+## Reproducibility metadata
+
+Every run records: evaluation timestamp, Git commit, Python version, dataset
+version (`1.0.0`), random seed (`42`), model identifier (`deterministic-template`),
+prompt version (`mvp-template-v1`), control version (`1.0.0`), threshold
+configuration, DataHub version (`oss-1.5.0.6`), and execution mode (`synthetic`).
+
+See `examples/evaluation/run_metadata.json` for the complete record.
+
+Two consecutive runs from the same commit produce identical GO/NO-GO results
+for all deterministic components.
+
+## Limitations
+
+- All historical backtesting data is synthetic JSON, not DataHub timeseries.
+- Sample size (8 snapshots) prevents meaningful statistical inference.
+- Lesson extraction uses deterministic scenario templates, not an LLM.
+- Only two control types (uniqueness, active ownership) are evaluated.
+- Shared tags and lineage signals are limited by the synthetic graph.
+- Results are "on the synthetic benchmark" — not evidence of production generalization.
 
 ## Similarity Resolution Quality
 
