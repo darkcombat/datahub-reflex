@@ -17,6 +17,7 @@ REQUIRED_FILES = (
     "docs/limits.md",
     "docs/evaluation.md",
     "docs/submission_checklist.md",
+    "docs/devpost_submission.md",
     "scripts/seed_live_datahub.py",
     "examples/evaluation/summary.json",
 )

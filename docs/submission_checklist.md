@@ -11,6 +11,7 @@
 - [x] README documents OSS versus Cloud boundaries
 - [x] `scripts/seed_live_datahub.py` documents live setup
 - [x] `scripts/audit_submission.py` passes the local artifact/security audit
+- [x] Devpost submission draft prepared in [docs/devpost_submission.md](devpost_submission.md)
 
 ## Functional verification
 
