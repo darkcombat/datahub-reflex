@@ -179,6 +179,10 @@ main { max-width: 900px; margin: 0 auto; padding: 2rem; }
 .step.done .step-number { background: var(--green); color: #fff; }
 .step-title { font-weight: 600; font-size: 0.95rem; }
 .step-detail { font-size: 0.85rem; color: var(--muted); padding-left: 2.5rem; }
+.step-intro { display: block; margin: -.2rem 0 .5rem; color: #8493a8; font-size: .72rem; line-height: 1.45; }
+.step-status { margin-left: auto; color: var(--muted); font-size: .63rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+.step.active .step-status { color: var(--accent); }
+.step.done .step-status { color: var(--green); }
 .step-detail strong { color: var(--text); }
 .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px;
   font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem; }
@@ -333,15 +337,15 @@ footer a:hover { text-decoration: underline; }
 
 <script>
 const STEP_LABELS = [
-  {num:1, title:"Resolved Incident", owner:"DataHub OSS"},
-  {num:2, title:"Human-Confirmed Root Cause", owner:"Reflex"},
-  {num:3, title:"Structured Lesson", owner:"Reflex"},
-  {num:4, title:"Preventive Control", owner:"Reflex"},
-  {num:5, title:"Similar Assets & Signals", owner:"Reflex"},
-  {num:6, title:"Backtest Metrics", owner:"Reflex-owned execution"},
-  {num:7, title:"Publication Approval", owner:"Reflex"},
-  {num:8, title:"DataHub Publication", owner:"DataHub OSS"},
-  {num:9, title:"Future Incident Detection", owner:"Reflex"},
+  {num:1, title:"Resolved incident", owner:"DataHub OSS", intro:"The starting evidence: what failed, where, and when."},
+  {num:2, title:"Human-confirmed root cause", owner:"Reflex", intro:"An operator validates the explanation before Reflex learns from it."},
+  {num:3, title:"Structured lesson", owner:"Reflex", intro:"The approved explanation becomes a reusable failure pattern."},
+  {num:4, title:"Preventive control", owner:"Reflex", intro:"The lesson is compiled into a deterministic executable check."},
+  {num:5, title:"Similar assets & signals", owner:"Reflex", intro:"DataHub relationships identify where the same weakness may exist."},
+  {num:6, title:"Historical backtest", owner:"Reflex-owned execution", intro:"The control is tested against normal and incident runs."},
+  {num:7, title:"Publication approval", owner:"Reflex", intro:"A second human decision is required before coverage is published."},
+  {num:8, title:"DataHub publication", owner:"DataHub OSS", intro:"Coverage, provenance and supported metadata are written back."},
+  {num:9, title:"Future incident detection", owner:"Reflex", intro:"The proof: an analogous failure is detected on another asset."},
 ];
 
 let currentState = null;
@@ -376,6 +380,14 @@ function modeBadge(mode) {
   return '<span class="badge badge-synthetic">SYNTHETIC</span>';
 }
 
+function stepStatus(n, state) {
+  const current = state.current_step || 0;
+  if (state.error && n === current) return 'Blocked';
+  if (state.is_complete || n < current) return 'Done';
+  if (n === current) return 'In progress';
+  return current === 0 ? 'Waiting' : 'Next';
+}
+
 function renderSteps(state) {
   currentState = state;
   const container = document.getElementById('steps');
@@ -406,7 +418,8 @@ function renderSteps(state) {
     else if (n === currentStep) cls += ' active';
     html += '<div class="' + cls + '">';
     html += '<div class="step-header"><div class="step-number">' + n + '</div>';
-    html += '<div class="step-title">' + s.title + ' ' + badge(s.owner) + '</div></div>';
+    html += '<div class="step-title">' + s.title + ' ' + badge(s.owner) + '</div><span class="step-status">' + stepStatus(n, state) + '</span></div>';
+    html += '<span class="step-intro">' + s.intro + '</span>';
     html += '<div class="step-detail">' + renderDetail(n, state) + '</div>';
     html += '</div>';
   }
@@ -450,14 +463,14 @@ function renderInsights(state) {
 function renderDetail(n, state) {
   switch (n) {
     case 1: // Incident
-      if (!state.incident_title) return '<em style="color:var(--muted)">Select scenario and run demo...</em>';
+      if (!state.incident_title) return '<em style="color:var(--muted)">Run an incident pattern to begin.</em>';
       return '<strong>' + state.incident_title + '</strong><br>' +
         '<span style="font-size:0.8rem;color:var(--muted)">' + state.incident_description + '</span><br>' +
         '<span style="font-size:0.75rem;color:var(--muted)">URN: <code>' + state.incident_urn + '</code></span>' +
         (state.incident_affected_asset ? '<br><span style="font-size:0.75rem;color:var(--muted)">Affected: <code>' + state.incident_affected_asset + '</code></span>' : '');
     case 2: // Root Cause
-      if (!state.root_cause) return '<em style="color:var(--muted)">Awaiting root cause submission...</em>';
-      var rcState = state.root_cause_approval_state || (state.current_step >= 2 ? 'approved' : 'pending');
+      if (!state.root_cause) return '<em style="color:var(--muted)">Waiting for the incident evidence.</em>';
+      var rcState = state.root_cause_approval_state || (state.current_step >= 3 ? 'approved' : 'pending');
       var rcColor = rcState === 'approved' ? 'var(--green)' : rcState === 'rejected' ? 'var(--red)' : 'var(--amber)';
       return '<strong>Root cause:</strong> ' + state.root_cause + '<br>' +
         '<span style="color:' + rcColor + ';font-weight:600">' + rcState.toUpperCase() + '</span>' +
@@ -465,22 +478,24 @@ function renderDetail(n, state) {
         (state.root_cause_approval_timestamp ? '<br><span style="font-size:0.7rem;color:var(--muted)">' + state.root_cause_approval_timestamp + '</span>' : '') +
         (rcState === 'pending' && !state.is_complete ? '<br><button class="btn" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Root Cause</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>' : '');
     case 3: // Lesson
-      if (!state.lesson_id) return '<em style="color:var(--muted)">Extracting lesson...</em>';
+      if (!state.lesson_id) return '<em style="color:var(--muted)">This appears after the root cause is approved.</em>';
       return '<strong>' + state.lesson_title + '</strong> <code style="font-size:0.75rem">(' + state.lesson_id + ')</code><br>' +
         'Failure: <code>' + state.failure_pattern + '</code> | Confidence: ' + state.lesson_confidence + '<br>' +
         'Vulnerable: ' + ((state.vulnerable_characteristics||[]).join(', ') || 'none') +
         (state.lesson_assumptions && state.lesson_assumptions.length ? '<br><span style="font-size:0.7rem;color:var(--muted)">Assumptions: ' + state.lesson_assumptions.join('; ') + '</span>' : '') +
         (state.lesson_limitations && state.lesson_limitations.length ? '<br><span style="font-size:0.7rem;color:var(--muted)">Limitations: ' + state.lesson_limitations.join('; ') + '</span>' : '');
     case 4: // Control
-      if (!state.control_id) return '<em style="color:var(--muted)">Synthesizing control...</em>';
+      if (!state.control_id) return '<em style="color:var(--muted)">The control is created from the approved lesson.</em>';
       return '<span class="badge badge-reflex">REFLEX-OWNED EXECUTION</span><br>' +
         '<strong>Type:</strong> ' + state.control_type +
         (state.control_target_field ? ' | <strong>Target:</strong> <code>' + state.control_target_field + '</code>' : '') + '<br>' +
         '<strong>ID:</strong> <code style="font-size:0.7rem">' + state.control_id + '</code><br>' +
         '<strong>Definition:</strong> <code style="font-size:0.7rem;word-break:break-all">' + (state.control_definition||'').substring(0,200) + '</code>';
     case 5: // Similar Assets
+      if ((state.current_step || 0) < 5 || !state.incident_title)
+        return '<em style="color:var(--muted)">Similar assets are evaluated after the control is defined.</em>';
       if (!state.similar_assets || state.similar_assets.length === 0)
-        return '<em style="color:var(--muted)">Discovering similar assets...</em><br>' +
+        return '<em style="color:var(--muted)">No candidates matched the current signals.</em><br>' +
           modeBadge(state.similarity_mode) + ' <span style="font-size:0.75rem;color:var(--muted)">6-signal resolution</span>';
       var ahtml = modeBadge(state.similarity_mode) + ' <span style="font-size:0.75rem;color:var(--muted)">| Signals: same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control</span><br>';
       state.similar_assets.forEach(function(a) {
@@ -496,8 +511,10 @@ function renderDetail(n, state) {
       });
       return ahtml;
     case 6: // Backtest
+      if ((state.current_step || 0) < 6 || !state.incident_title)
+        return '<em style="color:var(--muted)">Backtest starts after similar assets are selected.</em>';
       if (!state.backtest_snapshots)
-        return '<em style="color:var(--muted)">Running backtest...</em>';
+        return '<em style="color:var(--muted)">Backtest results are not available.</em>';
       var mhtml = '<span class="badge badge-reflex">REFLEX-OWNED EXECUTION</span> ' +
         '<span class="badge badge-synthetic">' + (state.backtest_data_provenance||'SYNTHETIC HISTORICAL DATA') + '</span><br>' +
         '<div class="metrics">' +
@@ -513,6 +530,8 @@ function renderDetail(n, state) {
         ' | Exec errors: ' + (state.backtest_execution_failures||0) + '</span>';
       return mhtml;
     case 7: // Approval
+      if ((state.current_step || 0) < 7 || !state.backtest_snapshots)
+        return '<em style="color:var(--muted)">Publication approval unlocks after a successful backtest.</em>';
       if (!state.approval_state) return '<em style="color:var(--muted)">Awaiting approval...</em>';
       var acolor = state.approval_state === 'approved' ? 'var(--green)' : state.approval_state === 'rejected' ? 'var(--red)' : 'var(--amber)';
       var ahtml2 = '<strong style="color:' + acolor + '">' + state.approval_state.toUpperCase() + '</strong>';
@@ -523,8 +542,10 @@ function renderDetail(n, state) {
       if (state.approval_state === 'pending' && !state.is_complete) ahtml2 += '<br><button class="btn btn-primary" onclick="approve(\'approved\')" style="margin-top:0.5rem;font-size:0.75rem">&#10003; Approve Publication</button> <button class="btn btn-danger" onclick="approve(\'rejected\')" style="margin-top:0.5rem;font-size:0.75rem">&#10007; Reject</button>';
       return ahtml2;
     case 8: // Publication
+      if ((state.current_step || 0) < 8 || state.approval_state !== 'approved')
+        return '<em style="color:var(--muted)">Publication follows explicit approval.</em>';
       if (state.publication_count === undefined || state.publication_count === null)
-        return '<em style="color:var(--muted)">Publishing to DataHub...</em>';
+        return '<em style="color:var(--muted)">Publication result is not available.</em>';
       var phtml = '';
       if (state.publication_count > 0) {
         phtml += '<strong>' + state.publication_count + ' assets</strong> published <span class="badge badge-datahub">DATAHUB OSS</span><br>';
@@ -547,8 +568,10 @@ function renderDetail(n, state) {
       }
       return phtml;
     case 9: // Detection
+      if ((state.current_step || 0) < 9 || !state.is_complete)
+        return '<em style="color:var(--muted)">This proof appears after publication.</em>';
       if (state.detection_assets_checked === undefined || state.detection_assets_checked === null)
-        return '<em style="color:var(--muted)">Running detection on similar assets...</em>';
+        return '<em style="color:var(--muted)">Detection result is not available.</em>';
       var dhtml = '<strong>' + state.detection_assets_checked + ' assets</strong> checked<br>';
       (state.detection_violations||[]).forEach(function(v) {
         var name = (v.asset_urn||'').split(',').pop()||v.asset_urn||'';

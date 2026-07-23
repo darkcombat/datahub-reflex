@@ -297,15 +297,16 @@ class TestUIHtmlContent:
         """Each of the 9 steps is represented in the UI."""
         resp = client.get("/")
         html = resp.data.decode()
-        assert "Resolved Incident" in html
-        assert "Human-Confirmed Root Cause" in html
-        assert "Structured Lesson" in html
-        assert "Preventive Control" in html
-        assert "Similar Assets" in html
-        assert "Backtest Metrics" in html
-        assert "Publication Approval" in html
-        assert "DataHub Publication" in html
-        assert "Future Incident Detection" in html
+        html = html.lower()
+        assert "resolved incident" in html
+        assert "human-confirmed root cause" in html
+        assert "structured lesson" in html
+        assert "preventive control" in html
+        assert "similar assets" in html
+        assert "historical backtest" in html
+        assert "publication approval" in html
+        assert "datahub publication" in html
+        assert "future incident detection" in html
 
     def test_html_labels_synthetic_data(self, client):
         """Synthetic data is clearly labeled in the UI."""
