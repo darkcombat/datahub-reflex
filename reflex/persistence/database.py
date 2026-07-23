@@ -219,6 +219,28 @@ def get_run(run_id: str) -> Optional[dict[str, Any]]:
     return dict(row) if row else None
 
 
+def get_run_by_incident(incident_urn: str) -> Optional[dict[str, Any]]:
+    """Find the run that owns an incident URN."""
+    db = get_db()
+    row = db.execute(
+        """SELECT r.* FROM runs r
+           JOIN incidents i ON i.run_id = r.id
+           WHERE i.urn = ? ORDER BY r.started_at DESC LIMIT 1""",
+        (incident_urn,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
+def get_incident_by_run(run_id: str) -> Optional[dict[str, Any]]:
+    """Return the persisted incident for a run."""
+    db = get_db()
+    row = db.execute(
+        "SELECT * FROM incidents WHERE run_id = ? ORDER BY created_at DESC LIMIT 1",
+        (run_id,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
 def list_runs(limit: int = 50) -> list[dict[str, Any]]:
     db = get_db()
     rows = db.execute(
@@ -264,6 +286,13 @@ def save_lesson(run_id: str, **kwargs: Any) -> str:
     _audit(run_id, "lesson.saved", {"lesson_id": lesson_id})
     db.commit()
     return lesson_id
+
+
+def get_lesson(lesson_id: str) -> Optional[dict[str, Any]]:
+    """Return a persisted lesson by identifier."""
+    db = get_db()
+    row = db.execute("SELECT * FROM lessons WHERE id = ?", (lesson_id,)).fetchone()
+    return dict(row) if row else None
 
 
 def save_control(run_id: str, **kwargs: Any) -> str:

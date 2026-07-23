@@ -168,11 +168,15 @@ curl -X POST http://localhost:5000/api/v1/incidents/urn:li:incident:demo/analyze
   -H "Content-Type: application/json" \
   -d '{"incident_title":"Test","incident_description":"Desc","incident_custom_type":"DUPLICATE_ROWS","human_confirmed_root_cause":"Retry bug","confirmed_by":"alice","target_asset_urn":"urn:li:dataset:(...)"}'
 
-# Execute a full run
-curl -X POST http://localhost:5000/api/v1/runs/test/execute \
+# Approve the proposed root cause (the response from analyze contains run_id)
+curl -X POST http://localhost:5000/api/v1/incidents/urn:li:incident:demo/root-cause/approve \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"scenario":"duplicate_rows","target_field":"transaction_id",...}'
+  -d '{"run_id":"<run_id>","decision":"approved","approver":"alice"}'
+
+# Then backtest, approve the control, and publish it.
+# The non-interactive /runs/<id>/execute shortcut is disabled in product mode
+# because it would bypass these mandatory human approval gates.
 
 # List all runs
 curl http://localhost:5000/api/v1/runs

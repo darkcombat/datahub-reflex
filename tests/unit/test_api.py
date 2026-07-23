@@ -9,6 +9,7 @@ import pytest
 
 from ui.app import app as flask_app
 from reflex.auth import create_token
+from reflex.persistence import database as db
 
 
 @pytest.fixture(autouse=True)
@@ -104,8 +105,14 @@ class TestAPIIncidentAnalysis:
         assert resp.status_code == 200
         data = resp.get_json()
         assert "run_id" in data
-        assert data["incident"]["root_cause_approved"] is True
-        assert data["lesson"]["control_type"] == "uniqueness"
+        assert data["incident"]["root_cause_approved"] is False
+        assert data["lesson"] is None
+        approval = client.post(
+            "/api/v1/incidents/urn:li:incident:api-test/root-cause/approve",
+            data=json.dumps({"decision": "approved", "approver": "t", "run_id": data["run_id"]}),
+            headers=admin_headers,
+        )
+        assert approval.status_code == 200
 
 
 class TestAPIApproval:
@@ -113,25 +120,25 @@ class TestAPIApproval:
         resp = client.post("/api/v1/incidents/t1/root-cause/approve",
             data=json.dumps({"decision": "approved", "approver": "t", "run_id": "r1"}),
             headers=admin_headers)
-        assert resp.status_code == 200
+        assert resp.status_code == 404
 
     def test_reject_root_cause(self, client, admin_headers):
         resp = client.post("/api/v1/incidents/t1/root-cause/approve",
             data=json.dumps({"decision": "rejected", "approver": "t"}),
             headers=admin_headers)
-        assert resp.status_code == 200
+        assert resp.status_code == 404
 
     def test_approve_control(self, client, admin_headers):
         resp = client.post("/api/v1/controls/c1/approve",
             data=json.dumps({"decision": "approved", "approver": "t", "run_id": "r1"}),
             headers=admin_headers)
-        assert resp.status_code == 200
+        assert resp.status_code == 404
 
     def test_reject_control(self, client, admin_headers):
         resp = client.post("/api/v1/controls/c1/approve",
             data=json.dumps({"decision": "rejected", "approver": "t", "run_id": "r1"}),
             headers=admin_headers)
-        assert resp.status_code == 200
+        assert resp.status_code == 404
 
 
 class TestAPIBacktestAndPublish:
@@ -139,16 +146,12 @@ class TestAPIBacktestAndPublish:
         resp = client.post("/api/v1/lessons/L1/backtest",
             data=json.dumps({"target_field": "transaction_id"}),
             headers=admin_headers)
-        assert resp.status_code == 200
-        assert resp.get_json()["backtest"]["can_recommend"] is True
+        assert resp.status_code == 404
 
     def test_publish(self, client, admin_headers):
         resp = client.post("/api/v1/controls/c1/publish",
             data=json.dumps({"run_id": "r1"}), headers=admin_headers)
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["publication"]["status"] == "reflex-owned"
-        assert data["detection"]["detected"] is True
+        assert resp.status_code == 404
 
     def test_full_workflow(self, client, admin_headers):
         r1 = client.post("/api/v1/incidents/urn:li:incident:full/analyze",
@@ -159,7 +162,23 @@ class TestAPIBacktestAndPublish:
             headers=admin_headers)
         assert r1.status_code == 200
         run_id = r1.get_json()["run_id"]
-        lesson_id = r1.get_json()["lesson"]["lesson_id"]
+        blocked = client.post(
+            "/api/v1/lessons/not-yet-created/backtest",
+            data=json.dumps({"target_field": "transaction_id", "run_id": run_id}),
+            headers=admin_headers,
+        )
+        assert blocked.status_code == 404
+        approval = client.post(
+            "/api/v1/incidents/urn:li:incident:full/root-cause/approve",
+            data=json.dumps({"decision": "approved", "approver": "t", "run_id": run_id}),
+            headers=admin_headers,
+        )
+        assert approval.status_code == 200
+        lesson_row = db.get_db().execute(
+            "SELECT id FROM lessons WHERE run_id = ? ORDER BY created_at DESC LIMIT 1", (run_id,)
+        ).fetchone()
+        assert lesson_row is not None
+        lesson_id = lesson_row["id"]
 
         r2 = client.post(f"/api/v1/lessons/{lesson_id}/backtest",
             data=json.dumps({"target_field": "transaction_id", "run_id": run_id}),
@@ -206,11 +225,8 @@ class TestAPIRuns:
                 "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,x,PROD)",
                 "target_field": "transaction_id"}),
             headers=admin_headers)
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["scenario"] == "duplicate_rows"
-        assert data["is_complete"] is True
-        assert data["future_detected"] is True
+        assert resp.status_code == 409
+        assert resp.get_json()["error"] == "NON_INTERACTIVE_EXECUTION_DISABLED"
 
     def test_execute_orphaned_ownership(self, client, admin_headers):
         resp = client.post("/api/v1/runs/urn:li:incident:exec-owner-001/execute",
@@ -220,8 +236,5 @@ class TestAPIRuns:
                 "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,x,PROD)",
                 "inactive_owner_urn": "urn:li:corpuser:bob"}),
             headers=admin_headers)
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["scenario"] == "orphaned_ownership"
-        assert data["is_complete"] is True
-        assert data["inactive_detected"] >= 1
+        assert resp.status_code == 409
+        assert resp.get_json()["error"] == "NON_INTERACTIVE_EXECUTION_DISABLED"
