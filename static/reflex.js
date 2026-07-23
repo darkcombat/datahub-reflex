@@ -61,12 +61,23 @@
     $('#workflow').innerHTML = STEPS.map(([title, intro, owner], index) => { const step = index + 1; const [status, cls] = statusFor(step, current, state.is_complete, state.error); return `<article class="step ${cls}"><div class="step-head"><span class="step-number">${step}</span><strong class="step-title">${title} ${ownerBadge(owner)}</strong><span class="step-status">${status}</span></div><span class="step-intro">${intro}</span><div class="step-body">${stateMessage(step, current, state)}</div></article>`; }).join('');
     $('#toast').hidden = !state.error; $('#toast').textContent = state.error ? `Action needed: ${state.error}` : ''; renderSummary(state);
   };
-  const request = async (url, options = {}) => { const response = await fetch(url, {headers:{'Content-Type':'application/json'}, ...options}); const payload = await response.json(); if (!response.ok) throw new Error(payload.detail || payload.error || 'Request failed'); return payload; };
+  const request = async (url, options = {}) => {
+    const headers = {'Content-Type': 'application/json', ...(options.headers || {})};
+    const token = sessionStorage.getItem('reflex_token');
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const response = await fetch(url, {...options, headers});
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || payload.error || 'Request failed');
+    return payload;
+  };
   const setBusy = (value) => { busy = value; $('#start-button').disabled = value; $('#reset-button').disabled = value; $('#start-button').innerHTML = value ? '<span aria-hidden="true">◌</span> Starting analysis…' : '<span aria-hidden="true">▶</span> Start analysis'; };
   const refresh = async () => render(await request('/api/state'));
   document.querySelectorAll('[data-scenario]').forEach((button) => button.addEventListener('click', () => { selectedScenario = button.dataset.scenario; document.querySelectorAll('[data-scenario]').forEach((card) => { const active = card.dataset.scenario === selectedScenario; card.classList.toggle('is-selected', active); card.setAttribute('aria-checked', String(active)); }); }));
   $('#start-button').addEventListener('click', async () => { if (busy) return; setBusy(true); try { render({current_step:1, incident_title:'Loading incident evidence…'}); render(await request('/api/run', {method:'POST', body:JSON.stringify({scenario:selectedScenario})})); } catch (error) { render({...state, error:error.message}); } finally { setBusy(false); } });
   $('#reset-button').addEventListener('click', async () => { if (busy) return; try { render(await request('/api/reset', {method:'POST'})); await refresh(); } catch (error) { render({...state, error:error.message}); } });
-  $('#workflow').addEventListener('click', async (event) => { const button = event.target.closest('[data-approval]'); if (!button || !state) return; button.disabled = true; try { await request('/api/approve', {method:'POST', body:JSON.stringify({decision:button.dataset.approval, approver:'demo-user', notes:'Decision recorded in Reflex workspace.'})}); await refresh(); } catch (error) { render({...state, error:error.message}); } finally { button.disabled = false; } });
+  $('#workflow').addEventListener('click', async (event) => { const button = event.target.closest('[data-approval]'); if (!button || !state) return; button.disabled = true; try {
+    const tokenSubject = (() => { try { const t = sessionStorage.getItem('reflex_token'); if (!t) return null; return JSON.parse(atob(t.split('.')[1])).sub; } catch(_) { return null; } })();
+    await request('/api/approve', {method:'POST', body:JSON.stringify({decision:button.dataset.approval, approver: tokenSubject || 'demo-user', notes:'Decision recorded in Reflex workspace.'})});
+    await refresh(); } catch (error) { render({...state, error:error.message}); } finally { button.disabled = false; } });
   refresh().catch((error) => render({current_step:0, error:error.message}));
 })();

@@ -141,6 +141,7 @@ class DemoRunner:
             backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context: dict[str, Any] = {}
+        self._active_run_id: str | None = None
 
     def reset(self) -> None:
         """Reset to initial state."""
@@ -154,6 +155,7 @@ class DemoRunner:
             backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context = {}
+        self._active_run_id = None
 
     async def run_full(
         self,
