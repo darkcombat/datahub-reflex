@@ -30,10 +30,14 @@ Be explicit about the boundary:
 Run from a clean checkout:
 
 ```powershell
-python scripts/audit_submission.py
-python -m pytest -q tests/unit tests/evaluation tests/ui
-python -m pytest -q tests/integration/test_live_datahub.py
+python scripts/recording_preflight.py --live
 ```
+
+The preflight is read-only with respect to tracked artifacts. It validates the
+recorded evaluation summary, runs the submission audit and offline suite, and
+with `--live` verifies the live DataHub integration suite. If the live
+Quickstart is unavailable, run it without `--live` and label the recording as
+synthetic wherever the UI shows synthetic data.
 
 Verify:
 
@@ -209,4 +213,3 @@ After watching the video once, a judge should be able to answer “yes” to all
 3. Is DataHub necessary to find and cover similar assets?
 4. Is the result written back with provenance?
 5. Does the first incident lead to detection of a later analogous incident?
-
