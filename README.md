@@ -125,6 +125,9 @@ python scripts/seed_live_datahub.py verify
 # Run live integration tests (requires DataHub)
 python -m pytest tests/integration/ -v
 
+# Recorded live verification evidence
+# See examples/rehearsal/live_validation_2026-07-23.md
+
 # Verify Step 3: full Reflex/DataHub loop
 python scripts/verify_step3.py
 
