@@ -402,7 +402,7 @@ Current implementation:
 - ✅ Explicit synthetic mode for offline development (live mode never silently falls back)
 - ✅ Live integration tests (9 DataHub integration checks)
 - ✅ Single-page UI (Flask + inline HTML, zero build step)
-- ✅ 137 offline/unit/evaluation/UI tests passing, plus 9 live DataHub integration tests
+- ✅ 138 offline/unit/evaluation/UI tests passing, plus 9 live DataHub integration tests
 
 Future work:
 - LLM-based lesson extraction from arbitrary incident descriptions
