@@ -123,7 +123,8 @@ class IncidentHelpersMixin:
             updateIncidentStatus(urn: $urn, input: $status)
         }
         """
-        status_input: dict[str, Any] = {"type": status}
+        # DataHub OSS v1.5.x names the status field `state`.
+        status_input: dict[str, Any] = {"state": status}
         if message:
             status_input["message"] = message
         variables = {"urn": incident_urn, "status": status_input}

@@ -37,7 +37,7 @@ authoritative link to the upstream repository.
 | **Status** | `patch prepared locally` |
 | **Files inspected** | `reflex/datahub/write_client.py`, `reflex/datahub/read_client.py`, `tests/integration/test_live_datahub.py` |
 | **Prepared patch** | `contrib/candidate_b_incident_helpers.py` — `IncidentHelpersMixin` with `raise_incident`, `update_incident_status`, `resolve_incident`, `search_incidents`, `get_incident`. ~180 lines including docstrings and test sketch. Follows SDK naming conventions. |
-| **Ready to submit** | Yes — code is tested against OSS v1.5.0.6 via Reflex integration tests (8/8 pass). |
+| **Ready to submit** | Yes — payload shape is covered by a local unit test and the underlying mutation is verified against OSS (8/8 Reflex integration tests pass). |
 | **Submitted** | No. |
 | **Issue/PR URL** | None. |
 | **Submitted** | No. |
@@ -69,11 +69,13 @@ authoritative link to the upstream repository.
 
 | Candidate | Status | Ready to submit | Estimated size |
 |-----------|--------|----------------|---------------|
-| A — Assertion execution docs | `researched` | No | Small |
-| B — DataHubGraph incident helpers | `researched` | No | Medium |
+| A — Assertion execution docs | `patch prepared locally` | Yes | Small |
+| B — DataHubGraph incident helpers | `patch prepared locally` | Yes | Medium |
 | C — MCP incident tools | `deferred` | No | Large |
 
-**No upstream PRs have been submitted.** All candidates are in the research phase, consistent with the 20-day plan (Days 14-15) which says: "upstream contributions are either linked or honestly labeled as prepared, never claimed as merged."
+**No upstream PRs have been submitted.** Candidates A and B are prepared locally;
+Candidate C remains deferred. No contribution is claimed as submitted or merged
+without an authoritative upstream URL.
 
 ---
 
