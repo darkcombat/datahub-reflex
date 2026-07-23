@@ -16,11 +16,14 @@ services:
       - "5000:5000"
     environment:
       - REFLEX_UI_PORT=5000
+      - REFLEX_UI_HOST=0.0.0.0
       - REFLEX_LLM_MODE=${REFLEX_LLM_MODE:-deterministic}
       - REFLEX_LLM_API_KEY=${REFLEX_LLM_API_KEY:-}
       - REFLEX_LLM_MODEL=${REFLEX_LLM_MODEL:-gpt-4o}
-      - REFLEX_API_SECRET=${REFLEX_API_SECRET:-change-me-in-production}
-      - DATAHUB_GMS_URL=${DATAHUB_GMS_URL:-http://localhost:8080}
+      - REFLEX_API_SECRET=${REFLEX_API_SECRET:?REFLEX_API_SECRET must be set}
+      - REFLEX_BOOTSTRAP_SECRET=${REFLEX_BOOTSTRAP_SECRET:?REFLEX_BOOTSTRAP_SECRET must be set}
+      - DATAHUB_GMS_URL=${DATAHUB_GMS_URL:-http://host.docker.internal:8080}
+      - DATAHUB_GMS_TOKEN=${DATAHUB_GMS_TOKEN:-}
       - REFLEX_DB_PATH=/app/data/reflex.db
       - REFLEX_LESSONS_DIR=/app/data
     volumes:

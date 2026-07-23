@@ -159,7 +159,8 @@ class DataHubWriteClient:
             updateIncidentStatus(urn: $urn, input: $status)
         }
         """
-        variables = {"urn": incident_urn, "status": {"type": status}}
+        # DataHub OSS v1.5.x names this input field `state`, not `type`.
+        variables = {"urn": incident_urn, "status": {"state": status}}
         async with httpx.AsyncClient(timeout=30.0, trust_env=False) as client:
             response = await client.post(
                 f"{self._gms_url}/api/graphql",

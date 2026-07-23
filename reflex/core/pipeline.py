@@ -426,6 +426,11 @@ class ReflexPipeline:
                 for asset in similar_assets
                 if asset.asset_urn in current_data
             ]
+        elif current_data and isinstance(current_data[0], dict):
+            # A single row collection is the current observation for every
+            # selected analogous asset. Do not zip rows to assets, which
+            # would pass one dict (and then its string keys) to the executor.
+            executions = [(asset, current_data) for asset in similar_assets]
         else:
             executions = list(zip(similar_assets, current_data, strict=False))
 

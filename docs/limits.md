@@ -25,6 +25,15 @@ It is a living document — update it whenever a new limitation is discovered.
 ### 1. Lesson extraction is template-based, not LLM-driven
 The current implementation uses scenario-specific templates (`build_duplicate_rows_lesson`, `build_orphaned_ownership_lesson`). An LLM interface is available but not the default. Two scenarios: `duplicate_rows` and `orphaned_ownership`.
 
+### 1a. Incident reads in the tested OSS quickstart
+
+DataHub OSS v1.5.0.6 accepts incident mutations (`raiseIncident` and
+`updateIncidentStatus`), but the tested GraphQL schema does not expose a
+stable incident read resolver. Reflex therefore treats mutation success and
+the returned incident URN as the live verification signal; incident lesson
+content remains owned by the Reflex workflow. DataHub Cloud or a later OSS
+schema with incident reads can remove this limitation.
+
 ### 2. Similarity resolution has two modes
 - **Live DataHub mode** (`use_live_datahub=True`): Uses `DataHubSimilarityResolver` which queries live DataHub via `searchAcrossEntities` (max 10 datasets), applies 6 signals (same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control), and raises an explicit `DataHubLiveQueryError` if DataHub is unreachable. It never falls back to synthetic data.
 - **Synthetic mode** (`use_live_datahub=False`, default): Uses the `SimilarityResolver` with in-memory datasets from `reflex.datahub.environment`.

@@ -73,37 +73,42 @@ class DataHubReadClient:
     # -- Incidents ---------------------------------------------------------------
 
     async def get_incident(self, incident_urn: str) -> dict[str, Any]:
-        """Fetch a single incident by URN."""
+        """Fetch a single incident by URN.
+
+        DataHub OSS quickstart does not expose the standalone ``incident``
+        root query in all supported versions. Use the public search resolver
+        instead, which is also the path used for incident discovery.
+        """
         query = """
-        query($urn: String!) {
-            incident(urn: $urn) {
-                urn
-                type
-                customType
-                title
-                description
-                status {
-                    type
-                }
-                source {
-                    type
-                }
-                created {
-                    time
-                    actor
-                }
-                entities {
-                    nodes {
-                        entity {
-                            urn
-                            type
+        query($query: String!) {
+            searchAcrossEntities(input: {types: [INCIDENT], query: $query, start: 0, count: 20}) {
+                searchResults {
+                    entity {
+                        urn
+                        type
+                        ... on Incident {
+                            title
+                            description
+                            status { state }
+                            customType
+                            source { type }
+                            created { time actor }
                         }
                     }
                 }
             }
         }
         """
-        return await self._query(query, {"urn": incident_urn})
+        result = await self._query(query, {"query": incident_urn})
+        results = result.get("searchAcrossEntities", {}).get("searchResults", [])
+        for item in results:
+            entity = item.get("entity", {})
+            if entity.get("urn") == incident_urn:
+                status = entity.get("status") or {}
+                if "type" in status and "state" not in status:
+                    status["state"] = status["type"]
+                return entity
+        return {}
 
     async def list_resolved_incidents(self, start: int = 0, count: int = 20) -> list[dict[str, Any]]:
         """List resolved incidents. Reflex starts from resolved incidents only."""

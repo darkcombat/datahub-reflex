@@ -286,10 +286,11 @@ def index():
 def main():
     """Run the Reflex UI demo server."""
     port = int(os.environ.get("REFLEX_UI_PORT", "5000"))
+    host = os.environ.get("REFLEX_UI_HOST", "127.0.0.1")
     debug = os.environ.get("REFLEX_UI_DEBUG", "0") == "1"
-    print(f"DataHub Reflex UI → http://localhost:{port}")
+    print(f"DataHub Reflex UI → http://{host}:{port}")
     print("Press Ctrl+C to stop.")
-    app.run(host="127.0.0.1", port=port, debug=debug)
+    app.run(host=host, port=port, debug=debug)
 
 
 if __name__ == "__main__":
