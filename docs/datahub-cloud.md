@@ -97,7 +97,7 @@ These limitations are **by design** — Reflex owns what DataHub OSS cannot do, 
 # Test live DataHub connectivity (works for both OSS and Cloud)
 python -m pytest tests/integration/ -v -m requires_datahub
 
-# 8 integration tests verify:
+# 9 integration tests verify:
 # - GraphQL connectivity
 # - Incident CRUD operations
 # - searchAcrossEntities queries

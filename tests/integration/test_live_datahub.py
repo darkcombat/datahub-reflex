@@ -64,6 +64,24 @@ class TestLiveDataHubIntegration:
         results = asyncio.run(_run())
         print(f"Found {len(results)} datasets in DataHub")
 
+    def test_read_client_oss_schema_compatibility(self) -> None:
+        """Verify supported dataset read fields against the OSS GraphQL schema."""
+        async def _run():
+            client = DataHubReadClient(gms_url=GMS_URL)
+            urn = "urn:li:dataset:(urn:li:dataPlatform:hive,SampleHiveDataset,PROD)"
+            upstream = await client.get_upstream_lineage(urn)
+            downstream = await client.get_downstream_lineage(urn)
+            tags = await client.get_tags(urn)
+            properties = await client.get_structured_properties(urn)
+            assertions = await client.get_assertion_definitions(urn)
+            assert isinstance(upstream, list)
+            assert isinstance(downstream, list)
+            assert isinstance(tags, list)
+            assert isinstance(properties, dict)
+            assert isinstance(assertions, list)
+
+        asyncio.run(_run())
+
     def test_live_resolver_finds_candidates(self) -> None:
         """Verify the live resolver discovers similar assets from real DataHub."""
         async def _run():

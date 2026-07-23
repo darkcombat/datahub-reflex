@@ -162,14 +162,14 @@ class DataHubReadClient:
     # -- Lineage -----------------------------------------------------------------
 
     async def get_upstream_lineage(self, dataset_urn: str) -> list[str]:
-        """Get upstream dataset URNs for a given dataset."""
+        """Get upstream dataset URNs using the OSS lineage resolver."""
         query = """
         query($urn: String!) {
             entity(urn: $urn) {
                 ... on Dataset {
-                    upstreamLineage {
-                        upstreams {
-                            dataset {
+                    lineage(input: {direction: UPSTREAM, start: 0, count: 100}) {
+                        relationships {
+                            entity {
                                 urn
                             }
                         }
@@ -179,19 +179,18 @@ class DataHubReadClient:
         }
         """
         result = await self._query(query, {"urn": dataset_urn})
-        entity = result.get("entity", {})
-        upstreams = entity.get("upstreamLineage", {}).get("upstreams", [])
-        return [u["dataset"]["urn"] for u in upstreams]
+        relationships = (result.get("entity") or {}).get("lineage", {}).get("relationships", [])
+        return [r["entity"]["urn"] for r in relationships if r.get("entity", {}).get("urn")]
 
     async def get_downstream_lineage(self, dataset_urn: str) -> list[str]:
-        """Get downstream dataset URNs for a given dataset."""
+        """Get downstream dataset URNs using the OSS lineage resolver."""
         query = """
         query($urn: String!) {
             entity(urn: $urn) {
                 ... on Dataset {
-                    downstreamLineage {
-                        downstreams {
-                            dataset {
+                    lineage(input: {direction: DOWNSTREAM, start: 0, count: 100}) {
+                        relationships {
+                            entity {
                                 urn
                             }
                         }
@@ -201,9 +200,8 @@ class DataHubReadClient:
         }
         """
         result = await self._query(query, {"urn": dataset_urn})
-        entity = result.get("entity", {})
-        downstreams = entity.get("downstreamLineage", {}).get("downstreams", [])
-        return [d["dataset"]["urn"] for d in downstreams]
+        relationships = (result.get("entity") or {}).get("lineage", {}).get("relationships", [])
+        return [r["entity"]["urn"] for r in relationships if r.get("entity", {}).get("urn")]
 
     # -- Ownership ---------------------------------------------------------------
 
@@ -282,12 +280,14 @@ class DataHubReadClient:
         query = """
         query($urn: String!) {
             entity(urn: $urn) {
-                tags {
+                ... on Dataset {
                     tags {
-                        tag {
-                            urn
-                            properties {
-                                name
+                        tags {
+                            tag {
+                                urn
+                                properties {
+                                    name
+                                }
                             }
                         }
                     }
@@ -306,12 +306,20 @@ class DataHubReadClient:
         query = """
         query($urn: String!) {
             entity(urn: $urn) {
-                structuredProperties {
-                    properties {
-                        propertyUrn
-                        values {
-                            stringValue
-                            numberValue
+                ... on Dataset {
+                    structuredProperties {
+                        properties {
+                            structuredProperty {
+                                urn
+                            }
+                            values {
+                                ... on StringValue {
+                                    stringValue
+                                }
+                                ... on NumberValue {
+                                    numberValue
+                                }
+                            }
                         }
                     }
                 }
@@ -328,7 +336,9 @@ class DataHubReadClient:
                 for v in values:
                     val = v.get("stringValue") or v.get("numberValue")
                     if val is not None:
-                        output[p["propertyUrn"]] = val
+                        property_urn = (p.get("structuredProperty") or {}).get("urn")
+                        if property_urn:
+                            output[property_urn] = val
                         break
         return output
 
@@ -347,7 +357,6 @@ class DataHubReadClient:
                         assertions {
                             urn
                             type
-                            description
                             platform {
                                 urn
                             }

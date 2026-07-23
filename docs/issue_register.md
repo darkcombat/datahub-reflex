@@ -114,7 +114,7 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 - **Severity**: LOW
 - **Evidence**: `Invoke-WebRequest http://localhost:8080` returns HTTP 500; health endpoint `/health` returns 200
 - **Affected files**: N/A (infrastructure)
-- **Impact**: DataHub React frontend is broken; GMS/API works correctly (all 8 integration tests pass). Does not affect Reflex.
+- **Impact**: DataHub React frontend is broken; GMS/API works correctly (all 9 integration tests pass). Does not affect Reflex.
 - **Recommended action**: Investigate DataHub frontend separately; not a Reflex issue
 - **Acceptance criterion**: N/A — Reflex operates entirely through GMS API, not the frontend
 - **Critical path**: No
@@ -128,16 +128,17 @@ Findings from the Days 3-6 hardening phase. No BLOCKER or HIGH issues were found
 
 | ID | Severity | Summary |
 |----|----------|---------|
-| MED-03 | MEDIUM | 5 `DataHubReadClient` methods use GraphQL fields absent in OSS v1.5.0.6 |
+| MED-03 | MEDIUM | DataHubReadClient OSS GraphQL schema compatibility |
 
-#### MED-03 — Broken GraphQL queries in DataHubReadClient (not in critical path)
+#### MED-03 — Broken GraphQL queries in DataHubReadClient (resolved)
 
 - **Severity**: MEDIUM
-- **Evidence**: Verified against live DataHub OSS v1.5.0.6 on 2026-07-22. Methods `get_upstream_lineage`, `get_downstream_lineage`, `get_tags`, `get_structured_properties`, and `get_assertion_definitions` still use fields absent or renamed in the tested schema. `get_incident` and `list_resolved_incidents` now use the working `searchAcrossEntities`/`state` shape.
+- **Status**: ✅ RESOLVED (2026-07-23, current live schema test)
+- **Evidence**: Verified against live DataHub OSS v1.5.0.6. Lineage, tags, structured properties, assertion metadata, and incident status queries now use the tested schema shapes; the live suite includes a dedicated compatibility test.
 - **Affected file**: `reflex/datahub/read_client.py`
 - **Impact**: These methods are **not called by any live pipeline path** (Phase3Pipeline uses `DataHubSimilarityResolver` which calls `searchAcrossEntities`; Phase4Pipeline uses `search_datasets`, `get_owners`, `get_domain` — all verified working). The broken methods are dead code for MVP flows but exist in the public API surface and would confuse a developer.
-- **Recommended action**: Either fix the GraphQL queries against the v1.5.0.6 schema, or add `@deprecated` / `NotImplementedError` guards with clear documentation pointing to the working alternatives. Do not remove them without checking whether the synthetic evaluation path uses them (it may use in-memory data branches).
-- **Acceptance criterion**: Calling any broken method against a live DataHub instance either succeeds or raises a clear, documented error explaining the OSS limitation
+- **Recommended action**: Keep the schema compatibility test and preserve the documented caveat for malformed incident search-index entries.
+- **Acceptance criterion**: Dataset read methods execute against the live OSS schema ✅
 - **Critical path**: No — the two MVP live flows do not call these methods
 
 ### LOW
@@ -164,10 +165,10 @@ Findings from the Days 3-6 hardening phase. No BLOCKER or HIGH issues were found
 |----------|-------|
 | BLOCKER  | 0     |
 | HIGH     | 0     |
-| MEDIUM   | 1     |
+| MEDIUM   | 0     |
 | LOW      | 3     |
 | EXTERNAL | 3     |
-| **Total** | **7** |
+| **Total** | **6** |
 
 No BLOCKER or HIGH issues found. The live DataHub paths are reliable and inspectable for both MVP scenarios.
 ---
@@ -178,9 +179,9 @@ No BLOCKER or HIGH issues found. The live DataHub paths are reliable and inspect
 |----------|-------|
 | BLOCKER  | 0     |
 | HIGH     | 0     |
-| MEDIUM   | 1     |
+| MEDIUM   | 0     |
 | LOW      | 3     |
 | EXTERNAL | 3     |
-| **Total** | **7** |
+| **Total** | **6** |
 
 No BLOCKER or HIGH issues found. The baseline is healthy and reproducible from a clean checkout.

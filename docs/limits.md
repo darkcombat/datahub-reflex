@@ -60,18 +60,15 @@ Integration tests in `tests/integration/` verify the live Reflex/DataHub paths. 
 
 ### 4a. DataHub OSS v1.5.0.6 GraphQL schema gaps (verified 2026-07-22)
 
-The following `DataHubReadClient` methods use GraphQL fields that are absent or renamed in DataHub OSS v1.5.0.6. These methods are **not in the critical path** for the two MVP live flows (duplicate rows and orphaned ownership), but they exist in the API surface and would fail if called against a live instance:
+The read client uses the tested OSS v1.5.0.6 schema for dataset lineage
+(`Dataset.lineage` with `LineageDirection`), tags and structured properties
+(`Dataset` inline fragments), and assertion metadata (without the Cloud-only
+description field). These paths are covered by the live integration suite.
 
-| Method | Failure | Root cause |
-|--------|---------|------------|
-| `get_incident` | `Field 'incident' in type 'Query' is undefined` | Top-level `incident(urn:)` query field not available |
-| `get_upstream_lineage` | `Field 'upstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
-| `get_downstream_lineage` | `Field 'downstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
-| `get_tags` | `Field 'tags' in type 'Entity' is undefined` | Needs `... on Dataset` inline fragment |
-| `get_structured_properties` | `Field 'structuredProperties' in type 'Entity' is undefined` | Needs `... on Dataset` inline fragment |
-| `get_assertion_definitions` | `Field 'description' in type 'Assertion' is undefined` | Schema uses different field name |
-
-**Methods verified working against v1.5.0.6**: `get_owners`, `get_domain`, `search_datasets`, `raise_incident`, `update_owner`, `add_tag`, `create_tag`, `searchAcrossEntities` (dataset queries).
+Incident search uses `searchAcrossEntities` because the OSS GraphQL schema does
+not expose a stable top-level `incident(urn:)` resolver. A stale or malformed
+search index entry may still cause DataHub to return a GraphQL null-entity
+error; Reflex does not silently replace that response with synthetic data.
 
 ### 4b. Ownership type normalization in DataHub OSS v1.5.0.6
 

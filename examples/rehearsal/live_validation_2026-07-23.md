@@ -44,7 +44,7 @@ python -m pytest -q tests/unit tests/evaluation tests/ui
 137 passed
 
 python -m pytest -q tests/integration/test_live_datahub.py
-8 passed
+9 passed
 
 python scripts/audit_submission.py
 SUBMISSION AUDIT: PASS

@@ -37,7 +37,7 @@ authoritative link to the upstream repository.
 | **Status** | `patch prepared locally` |
 | **Files inspected** | `reflex/datahub/write_client.py`, `reflex/datahub/read_client.py`, `tests/integration/test_live_datahub.py` |
 | **Prepared patch** | `contrib/candidate_b_incident_helpers.py` — `IncidentHelpersMixin` with `raise_incident`, `update_incident_status`, `resolve_incident`, `search_incidents`, `get_incident`. ~180 lines including docstrings and test sketch. Follows SDK naming conventions. |
-| **Ready to submit** | Yes — payload shape is covered by a local unit test and the underlying mutation is verified against OSS (8/8 Reflex integration tests pass). |
+| **Ready to submit** | Yes — payload shape is covered by a local unit test and the underlying mutation is verified against OSS (9/9 Reflex integration tests pass). |
 | **Submitted** | No. |
 | **Issue/PR URL** | None. |
 | **Submitted** | No. |

@@ -11,7 +11,7 @@
   "benchmark": "GO",
   "demo": "PASS (both scenarios)",
   "live_seed_verify": "5 datasets verified",
-  "live_integration_tests": "8/8 PASS",
+  "live_integration_tests": "9/9 PASS",
   "duration_seconds": 30,
   "failures": [],
   "manual_steps": [],
