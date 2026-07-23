@@ -15,6 +15,7 @@ from reflex.persistence import database as db
 @pytest.fixture(autouse=True)
 def _set_secret(monkeypatch):
     monkeypatch.setenv("REFLEX_API_SECRET", "test-secret-key-for-tests")
+    monkeypatch.setenv("REFLEX_BOOTSTRAP_SECRET", "test-bootstrap-secret")
 
 
 @pytest.fixture
@@ -54,7 +55,7 @@ class TestAPIHealth:
 class TestAPIAuth:
     def test_create_token_admin(self, client):
         resp = client.post("/api/v1/auth/token",
-            data=json.dumps({"subject": "test", "role": "admin"}),
+            data=json.dumps({"subject": "test", "role": "admin", "bootstrap_secret": "test-bootstrap-secret"}),
             content_type="application/json")
         assert resp.status_code == 200
         data = resp.get_json()
@@ -66,6 +67,12 @@ class TestAPIAuth:
             data=json.dumps({"subject": "test", "role": "superuser"}),
             content_type="application/json")
         assert resp.status_code == 400
+
+    def test_token_requires_bootstrap_secret(self, client):
+        resp = client.post("/api/v1/auth/token",
+            data=json.dumps({"subject": "test", "role": "admin"}),
+            content_type="application/json")
+        assert resp.status_code == 401
 
     def test_unauthenticated_rejected(self, client):
         resp = client.post("/api/v1/incidents/test/analyze",
@@ -197,24 +204,27 @@ class TestAPIBacktestAndPublish:
         assert r4.get_json()["is_complete"] is True
 
         # Verify persistence: runs survive between requests
-        r5 = client.get(f"/api/v1/runs/{run_id}")
+        r5 = client.get(f"/api/v1/runs/{run_id}", headers=admin_headers)
         assert r5.status_code == 200
         assert r5.get_json()["is_complete"] is True
 
         # Audit trail is available
-        r6 = client.get(f"/api/v1/runs/{run_id}/audit")
+        r6 = client.get(f"/api/v1/runs/{run_id}/audit", headers=admin_headers)
         assert r6.status_code == 200
         assert len(r6.get_json()["events"]) >= 5
 
 
 class TestAPIRuns:
     def test_list_runs(self, client):
-        resp = client.get("/api/v1/runs")
+        token = create_token("viewer-user", "viewer")
+        resp = client.get("/api/v1/runs", headers={"Authorization": f"Bearer {token}"})
         assert resp.status_code == 200
         assert "runs" in resp.get_json()
 
     def test_get_nonexistent_run(self, client):
-        resp = client.get("/api/v1/runs/nonexistent")
+        token = create_token("viewer-user", "viewer")
+        resp = client.get("/api/v1/runs/nonexistent",
+            headers={"Authorization": f"Bearer {token}"})
         assert resp.status_code == 404
 
     def test_execute_duplicate_rows(self, client, admin_headers):

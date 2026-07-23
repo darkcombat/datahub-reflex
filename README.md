@@ -160,7 +160,7 @@ REFLEX_API_SECRET=my-production-secret docker compose -f docker-compose.reflex.y
 # Get an auth token
 curl -X POST http://localhost:5000/api/v1/auth/token \
   -H "Content-Type: application/json" \
-  -d '{"subject":"alice","role":"admin"}'
+  -d '{"subject":"alice","role":"admin","bootstrap_secret":"<bootstrap-secret>"}'
 
 # Analyze an incident
 curl -X POST http://localhost:5000/api/v1/incidents/urn:li:incident:demo/analyze \

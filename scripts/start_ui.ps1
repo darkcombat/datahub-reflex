@@ -25,6 +25,9 @@ if (Test-Path $EnvFile) {
 if (-not $env:REFLEX_API_SECRET) {
     throw "REFLEX_API_SECRET is not configured. Copy .env.example to .env and set a secret."
 }
+if (-not $env:REFLEX_BOOTSTRAP_SECRET) {
+    throw "REFLEX_BOOTSTRAP_SECRET is not configured. Set it before issuing API tokens."
+}
 
 $env:REFLEX_UI_PORT = "$Port"
 Write-Host "Starting DataHub Reflex UI on http://127.0.0.1:$Port"

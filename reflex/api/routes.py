@@ -17,6 +17,7 @@ Endpoints:
 from __future__ import annotations
 
 import asyncio
+import hmac
 import json
 import os
 import uuid
@@ -50,12 +51,20 @@ def health():
 @api_bp.post("/auth/token")
 @rate_limit
 def create_auth_token():
-    """Create an authentication token. Requires REFLEX_API_SECRET in env."""
+    """Create a token using the separately configured bootstrap secret."""
     data = request.get_json(silent=True) or {}
     subject = data.get("subject", "api-user")
     role = data.get("role", "viewer")
     if role not in ("admin", "approver", "viewer"):
         return jsonify({"error": "INVALID_ROLE", "detail": f"Role must be admin, approver, or viewer. Got: {role}"}), 400
+    bootstrap_secret = os.environ.get("REFLEX_BOOTSTRAP_SECRET", "").strip()
+    provided_secret = str(data.get("bootstrap_secret", ""))
+    if not bootstrap_secret:
+        return jsonify({"error": "AUTH_ISSUER_NOT_CONFIGURED",
+            "detail": "REFLEX_BOOTSTRAP_SECRET is required to issue tokens."}), 503
+    if not hmac.compare_digest(provided_secret, bootstrap_secret):
+        return jsonify({"error": "INVALID_BOOTSTRAP_SECRET",
+            "detail": "A valid bootstrap secret is required to issue tokens."}), 401
     try:
         token = create_token(subject=subject, role=role)
         return jsonify({"token": token, "subject": subject, "role": role,
@@ -174,6 +183,7 @@ def approve_root_cause(incident_id: str):
 
 
 @api_bp.get("/lessons/<lesson_id>")
+@require_auth
 def get_lesson(lesson_id: str):
     lesson = db.get_lesson(lesson_id)
     if not lesson:
@@ -274,6 +284,7 @@ def backtest_lesson(lesson_id: str):
 
 
 @api_bp.get("/controls/<control_id>")
+@require_auth
 def get_control(control_id: str):
     return jsonify(to_dict(ApiError(error="NOT_FOUND",
         detail=f"Control {control_id} not found.", correlation_id=str(uuid.uuid4())[:8]))), 404
@@ -344,6 +355,7 @@ def publish_control(control_id: str):
 
 
 @api_bp.get("/runs/<run_id>")
+@require_auth
 def get_run(run_id: str):
     run = db.get_run(run_id)
     if not run:
@@ -391,11 +403,13 @@ def execute_run(run_id: str):
 
 
 @api_bp.get("/runs")
+@require_auth
 def list_runs():
     return jsonify({"runs": db.list_runs(), "persistence": "sqlite"})
 
 
 @api_bp.get("/runs/<run_id>/audit")
+@require_auth
 def get_audit_log(run_id: str):
     run = db.get_run(run_id)
     if not run:
