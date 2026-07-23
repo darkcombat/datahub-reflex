@@ -50,11 +50,13 @@ class TestAPIEndpoints:
         """GET / returns HTML page."""
         resp = client.get("/")
         assert resp.status_code == 200
-        assert b"<!DOCTYPE html>" in resp.data
+        assert b"<!doctype html>" in resp.data
         assert b"DataHub Reflex" in resp.data
-        assert b'id="run-button"' in resp.data
-        assert b"Choose an incident pattern" in resp.data
+        assert b'id="start-button"' in resp.data
+        assert b"What should Reflex learn from?" in resp.data
         assert b"Protection pipeline" in resp.data
+        assert b"reflex.css" in resp.data
+        assert b"reflex.js" in resp.data
 
     def test_state_endpoint_returns_json(self, client):
         """GET /api/state returns JSON with expected keys."""
@@ -296,7 +298,7 @@ class TestUIHtmlContent:
     def test_html_contains_all_step_labels(self, client):
         """Each of the 9 steps is represented in the UI."""
         resp = client.get("/")
-        html = resp.data.decode()
+        html = client.get("/static/reflex.js").data.decode().lower()
         html = html.lower()
         assert "resolved incident" in html
         assert "human-confirmed root cause" in html
@@ -311,13 +313,13 @@ class TestUIHtmlContent:
     def test_html_labels_synthetic_data(self, client):
         """Synthetic data is clearly labeled in the UI."""
         resp = client.get("/")
-        html = resp.data.decode()
-        assert "SYNTHETIC" in html
+        html = client.get("/static/reflex.js").data.decode()
+        assert "synthetic" in html.lower()
 
     def test_html_labels_reflex_vs_datahub(self, client):
         """UI distinguishes Reflex-owned vs DataHub OSS."""
         resp = client.get("/")
-        html = resp.data.decode()
+        html = client.get("/static/reflex.js").data.decode()
         assert "badge-reflex" in html
         assert "badge-datahub" in html
 
@@ -325,10 +327,10 @@ class TestUIHtmlContent:
         """Reset action is available."""
         resp = client.get("/")
         html = resp.data.decode()
-        assert "resetDemo" in html or "Reset" in html
+        assert 'id="reset-button"' in html
 
     def test_html_has_run_button(self, client):
         """Run demo action is available."""
         resp = client.get("/")
         html = resp.data.decode()
-        assert "runDemo" in html or "Run Demo" in html
+        assert 'id="start-button"' in html

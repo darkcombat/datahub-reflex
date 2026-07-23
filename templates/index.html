@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="DataHub Reflex incident-to-control workspace">
+  <title>DataHub Reflex · Reliability workspace</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='reflex.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to workspace</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="DataHub Reflex home">
+      <span class="brand-mark" aria-hidden="true">R</span>
+      <span><strong>DataHub <em>Reflex</em></strong><small>Reliability workspace</small></span>
+    </a>
+    <div class="connection" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="connection-status">Ready</span><span class="mode-label" id="mode-label">Synthetic mode</span></div>
+  </header>
+
+  <main id="workspace" class="shell">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">INCIDENT-TO-CONTROL COMPILATION</p>
+        <h1 id="page-title">Make resolved incidents reusable.</h1>
+        <p class="hero-copy">Reflex turns a human-confirmed lesson into a tested preventive control and shows exactly where the protection applies.</p>
+      </div>
+      <div class="trust-note"><span class="trust-icon" aria-hidden="true">✓</span><span><strong>Human approval required</strong><small>Reflex never publishes a generated control automatically.</small></span></div>
+    </section>
+
+    <section class="scenario-section" aria-labelledby="scenario-title">
+      <div class="section-title"><div><p class="eyebrow">1 · SELECT A PATTERN</p><h2 id="scenario-title">What should Reflex learn from?</h2></div><span class="muted">2 supported workflows</span></div>
+      <div class="scenario-grid" role="radiogroup" aria-labelledby="scenario-title">
+        <button class="scenario-card is-selected" type="button" role="radio" aria-checked="true" data-scenario="duplicate_rows">
+          <span class="scenario-glyph" aria-hidden="true">↗</span><span class="scenario-copy"><strong>Duplicate rows</strong><small>Non-idempotent retries in finance pipelines</small></span><span class="check" aria-hidden="true">✓</span>
+        </button>
+        <button class="scenario-card" type="button" role="radio" aria-checked="false" data-scenario="orphaned_ownership">
+          <span class="scenario-glyph violet" aria-hidden="true">◉</span><span class="scenario-copy"><strong>Orphaned ownership</strong><small>Offboarded users still own critical assets</small></span><span class="check" aria-hidden="true">✓</span>
+        </button>
+      </div>
+      <div class="actions"><button class="button primary" type="button" id="start-button"><span aria-hidden="true">▶</span> Start analysis</button><button class="button quiet" type="button" id="reset-button">Reset workspace</button></div>
+    </section>
+
+    <div id="toast" class="toast" role="alert" aria-live="assertive" hidden></div>
+    <section class="workspace-grid" aria-label="Reflex workflow">
+      <section class="workflow-panel" aria-labelledby="workflow-title">
+        <div class="section-title compact"><div><p class="eyebrow">2 · FOLLOW THE EVIDENCE</p><h2 id="workflow-title">Protection pipeline</h2></div><span class="progress-label" id="progress-label">Not started</span></div>
+        <div id="workflow" class="workflow" aria-live="polite"></div>
+      </section>
+      <aside class="summary-panel" aria-labelledby="summary-title">
+        <div class="section-title compact"><div><p class="eyebrow">DECISION SUPPORT</p><h2 id="summary-title">Run summary</h2></div></div>
+        <div id="summary" class="summary" aria-live="polite"></div>
+      </aside>
+    </section>
+  </main>
+
+  <footer><span>DataHub Reflex</span><span>·</span><a href="https://github.com/darkcombat/datahub-reflex" target="_blank" rel="noreferrer">View source</a><span>·</span><span>DataHub OSS + Reflex-owned execution</span></footer>
+  <script src="{{ url_for('static', filename='reflex.js') }}" defer></script>
+</body>
+</html>

@@ -18,7 +18,7 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 from ui.demo_runner import (
     DemoRunner,
@@ -27,7 +27,12 @@ from ui.demo_runner import (
 )
 from reflex.api.routes import api_bp
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    template_folder="../templates",
+    static_folder="../static",
+    static_url_path="/static",
+)
 app.register_blueprint(api_bp)
 
 # -- Global demo runner (single-user demo) --
@@ -646,7 +651,7 @@ async function approve(decision) {
 
 @app.get("/")
 def index():
-    return _HTML
+    return render_template("index.html")
 
 
 # ---------------------------------------------------------------------------
