@@ -1,7 +1,7 @@
 {
   "generated_by": "evaluation_harness",
   "config": {
-    "evaluation_date": "2026-07-22T22:29:43.689081+00:00",
+    "evaluation_date": "2026-07-23T08:09:53.592980+00:00",
     "random_seed": 42,
     "dataset_version": "1.0.0",
     "prompt_version": "mvp-template-v1",
@@ -9,12 +9,12 @@
     "model": "deterministic-template",
     "environment": "synthetic",
     "datahub_version": "oss-1.5.0.6",
-    "git_commit": "67c7b44ad8007365f1e247fd605ef8ebcf3d9eac",
+    "git_commit": "caebcf7a58d19cdec00c1f57d680d292ace27dda",
     "python_version": "3.12.10",
     "execution_mode": "synthetic",
     "command": "python examples/evaluation/run_evaluation.py"
   },
-  "generated_at": "2026-07-22T22:29:44.538203+00:00",
+  "generated_at": "2026-07-23T08:09:53.987732+00:00",
   "scenario": "duplicate_rows",
   "title": "duplicate_rows incident",
   "status": "RESOLVED"

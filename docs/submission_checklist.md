@@ -37,9 +37,10 @@
 - [ ] Record public demo video under three minutes
 - [ ] Verify the video URL is public
 - [x] Run the demo from a clean checkout (audit, CLI demo, and 90-test suite passed)
-- [ ] Re-run the full test commands and record outputs
+- [x] Re-run the full test commands and record outputs (122 offline tests, 8 live tests, benchmark GO)
 - [ ] Confirm Devpost category: `Agents That Do Real Work`
 - [ ] Add final repository URL and video URL to the Devpost submission
+- [x] P0-P2 product development complete (LLM client, API surface, upstream patches)
 
 ## Known honest limitations
 
