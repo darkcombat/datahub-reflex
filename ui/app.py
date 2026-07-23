@@ -14,6 +14,10 @@ Stack: Flask + Jinja2 templates + SQLite persistence. Zero npm.
 
 from __future__ import annotations
 
+# -- Load .env before any other config-dependent imports --
+from reflex.core.env import load_dotenv
+load_dotenv()
+
 import asyncio
 import json
 import os

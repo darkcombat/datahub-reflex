@@ -18,6 +18,11 @@ env/
 .env.local
 .env.*.local
 
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
 # IDE
 .vscode/settings.json
 .idea/

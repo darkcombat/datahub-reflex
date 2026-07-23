@@ -56,6 +56,9 @@ def create_token(subject: str, role: str = "viewer", expiry_hours: int | None = 
     if expiry_hours is None:
         expiry_hours = int(os.environ.get("REFLEX_TOKEN_EXPIRY_HOURS", "24"))
 
+    if role not in ("admin", "approver", "viewer"):
+        raise ValueError(f"Invalid role: {role}. Must be admin, approver, or viewer.")
+
     payload = {
         "sub": subject,
         "role": role,
