@@ -52,6 +52,16 @@ def health():
 def analyze_incident(incident_id: str):
     data = request.get_json(silent=True) or {}
     cid = str(uuid.uuid4())[:8]
+    required = (
+        "incident_title", "incident_description", "human_confirmed_root_cause",
+        "confirmed_by", "target_asset_urn", "incident_custom_type",
+    )
+    missing = [key for key in required if not str(data.get(key, "")).strip()]
+    if missing:
+        return jsonify(to_dict(ApiError(
+            error="INVALID_REQUEST", detail=f"Missing required fields: {', '.join(missing)}.",
+            correlation_id=cid, next_action="Provide all incident and approval context fields.",
+        ))), 400
     try:
         pipeline = Phase3Pipeline(lessons_dir=Path(os.environ.get("REFLEX_LESSONS_DIR", "./datasets")))
 
@@ -65,40 +75,26 @@ def analyze_incident(incident_id: str):
                 proposed_root_cause=data.get("human_confirmed_root_cause", ""),
             )
             await pipeline.step2_submit_root_cause(incident_id, inc["proposed_root_cause"])
-            root = await pipeline.step2_approve_root_cause(incident_id, data.get("confirmed_by", "api-user"))
-            lesson, _ = await pipeline.step3_extract_lesson(
-                incident_id, inc["title"], inc["description"],
-                root.final_root_cause, data.get("confirmed_by", "api-user"),
-                inc["affected_asset_urn"], data.get("incident_custom_type", ""),
-            )
-            return inc, root, lesson
+            return inc
 
-        incident, root, lesson = asyncio.run(_run())
+        incident = asyncio.run(_run())
 
         incident_resp = IncidentResponse(
             incident_urn=incident_id, title=incident["title"],
             description=incident["description"], affected_asset_urn=incident["affected_asset_urn"],
-            status="RESOLVED", root_cause=root.final_root_cause, root_cause_approved=True,
-            approved_by=data.get("confirmed_by", "api-user"), approved_at=datetime.now(UTC).isoformat(),
-        )
-        lesson_resp = LessonResponse(
-            lesson_id=lesson.lesson_id, title=lesson.title,
-            failure_category=lesson.failure_pattern.category.value,
-            failure_pattern=str(lesson.failure_pattern),
-            vulnerable_characteristics=list(lesson.vulnerable_characteristics),
-            control_type=lesson.candidate_preventive_control.control_type.value,
-            propagation_scope=list(lesson.intended_propagation_scope),
-            confidence=lesson.confidence.value, source_incident_urn=incident_id,
+            status="PENDING_ROOT_CAUSE", root_cause=incident["proposed_root_cause"],
+            root_cause_approved=False,
         )
         run_id = str(uuid.uuid4())
         _runs[run_id] = {"pipeline": pipeline, "scenario": "duplicate_rows",
-                         "incident": incident_resp, "lesson": lesson_resp,
+                         "incident_custom_type": data.get("incident_custom_type", ""),
+                         "incident": incident_resp, "lesson": None,
                          "incident_id": incident_id, "started_at": datetime.now(UTC).isoformat(), "current_step": 3}
         global _current_run_id
         _current_run_id = run_id
         return jsonify(to_dict(RunResponse(run_id=run_id, started_at=_runs[run_id]["started_at"],
-            current_step=3, is_complete=False, mode_label="SYNTHETIC MODE",
-            incident=incident_resp, lesson=lesson_resp)))
+            current_step=1, is_complete=False, mode_label="SYNTHETIC MODE",
+            incident=incident_resp, lesson=None)))
     except Exception as e:
         return jsonify({"error": "ANALYSIS_FAILED", "detail": str(e), "correlation_id": cid}), 500
 
@@ -106,12 +102,66 @@ def analyze_incident(incident_id: str):
 @api_bp.post("/incidents/<incident_id>/root-cause/approve")
 def approve_root_cause(incident_id: str):
     data = request.get_json(silent=True) or {}
-    decision = data.get("decision", "approved")
-    return jsonify(to_dict(ApprovalResponse(
-        approval_type="root_cause", state=decision,
-        approver=data.get("approver", "api-user"), notes=data.get("notes", ""),
-        timestamp=datetime.now(UTC).isoformat(),
-    )))
+    decision = data.get("decision", "")
+    approver = data.get("approver", "")
+    run = _find_run_by_incident(incident_id)
+    if decision not in {"approved", "rejected"} or not approver:
+        return jsonify(to_dict(ApiError(
+            error="INVALID_APPROVAL", detail="decision and approver are required.",
+            correlation_id=str(uuid.uuid4())[:8], next_action="Provide decision=approved|rejected and approver.",
+        ))), 400
+    if not run:
+        return jsonify(to_dict(ApiError(
+            error="NOT_FOUND", detail=f"Incident {incident_id} has no active API run.",
+            correlation_id=str(uuid.uuid4())[:8],
+        ))), 404
+
+    async def _approve():
+        pipeline = run["pipeline"]
+        if decision == "rejected":
+            return await pipeline.step2_reject_root_cause(incident_id, approver)
+        root = await pipeline.step2_approve_root_cause(
+            incident_id, approver, edited_cause=data.get("edited_root_cause", "")
+        )
+        lesson, _ = await pipeline.step3_extract_lesson(
+            incident_id, run["incident"].title, run["incident"].description,
+            root.final_root_cause, approver, run["incident"].affected_asset_urn,
+            run.get("incident_custom_type", "DUPLICATE_ROWS"),
+        )
+        return root, lesson
+
+    result = asyncio.run(_approve())
+    timestamp = datetime.now(UTC).isoformat()
+    if decision == "rejected":
+        run["incident"] = IncidentResponse(
+            incident_urn=incident_id, title=run["incident"].title,
+            description=run["incident"].description,
+            affected_asset_urn=run["incident"].affected_asset_urn,
+            status="ROOT_CAUSE_REJECTED", root_cause=run["incident"].root_cause,
+            root_cause_approved=False,
+        )
+        run["approval"] = ApprovalResponse(
+            approval_type="root_cause", state="rejected", approver=approver,
+            notes=data.get("notes", ""), timestamp=timestamp,
+        )
+        return jsonify(to_dict(run["approval"]))
+
+    root, lesson = result
+    run["incident"] = IncidentResponse(
+        incident_urn=incident_id, title=run["incident"].title,
+        description=run["incident"].description,
+        affected_asset_urn=run["incident"].affected_asset_urn,
+        status="RESOLVED", root_cause=root.final_root_cause,
+        root_cause_approved=True, approved_by=approver, approved_at=timestamp,
+    )
+    run["lesson_obj"] = lesson
+    run["lesson"] = _lesson_response(lesson, incident_id, extraction_mode="deterministic")
+    run["root_cause_approval"] = ApprovalResponse(
+        approval_type="root_cause", state="approved", approver=approver,
+        notes=data.get("notes", ""), timestamp=timestamp,
+    )
+    run["current_step"] = 3
+    return jsonify(to_dict(run["root_cause_approval"]))
 
 
 @api_bp.get("/lessons/<lesson_id>")
@@ -134,16 +184,9 @@ def backtest_lesson(lesson_id: str):
     try:
         pipeline = run["pipeline"]
         async def _run():
-            from reflex.core.lesson_extractor import LessonExtractor
-            extractor = LessonExtractor()
-            lesson_tuple = await extractor.extract(
-                incident_urn=run["incident_id"], incident_title=run["incident"].title,
-                incident_description=run["incident"].description,
-                human_confirmed_root_cause=run["incident"].root_cause,
-                confirmed_by="api-user", target_asset_urn=run["incident"].affected_asset_urn,
-                incident_custom_type="DUPLICATE_ROWS",
-            )
-            lesson = lesson_tuple[0]
+            lesson = run.get("lesson_obj")
+            if lesson is None or not run["incident"].root_cause_approved:
+                raise ValueError("Root cause must be explicitly approved before backtesting.")
             target_field = data.get("target_field", "transaction_id")
             candidates = await pipeline.step4_discover_similar_assets(
                 source_asset_urn=run["incident"].affected_asset_urn,
@@ -207,15 +250,30 @@ def approve_control(control_id: str):
     data = request.get_json(silent=True) or {}
     decision = data.get("decision", "approved")
     run = _get_current_run()
+    if not run or not run.get("control") or run["control"].control_id != control_id:
+        return jsonify(to_dict(ApiError(
+            error="NOT_FOUND", detail=f"Control {control_id} has no active API run.",
+            correlation_id=str(uuid.uuid4())[:8],
+        ))), 404
+    if not run.get("backtest") or not run["backtest"].can_recommend:
+        return jsonify(to_dict(ApiError(
+            error="BACKTEST_REQUIRED", detail="A successful backtest is required before approval.",
+            correlation_id=str(uuid.uuid4())[:8], next_action="Run the lesson backtest first.",
+        ))), 409
     if decision == "rejected":
-        return jsonify(to_dict(ApprovalResponse(approval_type="control", state="rejected",
-            approver=data.get("approver", "api-user"), notes=data.get("notes", ""),
-            timestamp=datetime.now(UTC).isoformat())))
-    if run:
-        run["approval"] = ApprovalResponse(approval_type="control", state="approved",
+        run["approval"] = ApprovalResponse(approval_type="control", state="rejected",
             approver=data.get("approver", "api-user"), notes=data.get("notes", ""),
             timestamp=datetime.now(UTC).isoformat())
-        run["current_step"] = 7
+        return jsonify(to_dict(run["approval"]))
+    if decision != "approved" or not data.get("approver"):
+        return jsonify(to_dict(ApiError(
+            error="INVALID_APPROVAL", detail="decision=approved|rejected and approver are required.",
+            correlation_id=str(uuid.uuid4())[:8],
+        ))), 400
+    run["approval"] = ApprovalResponse(approval_type="control", state="approved",
+            approver=data.get("approver", "api-user"), notes=data.get("notes", ""),
+            timestamp=datetime.now(UTC).isoformat())
+    run["current_step"] = 7
     return jsonify(to_dict(ApprovalResponse(approval_type="control", state="approved",
         approver=data.get("approver", "api-user"), notes=data.get("notes", ""),
         timestamp=datetime.now(UTC).isoformat())))
@@ -225,6 +283,16 @@ def approve_control(control_id: str):
 def publish_control(control_id: str):
     cid = str(uuid.uuid4())[:8]
     run = _get_current_run()
+    if not run or not run.get("control") or run["control"].control_id != control_id:
+        return jsonify(to_dict(ApiError(
+            error="NOT_FOUND", detail=f"Control {control_id} has no active API run.",
+            correlation_id=cid,
+        ))), 404
+    if not run.get("approval") or run["approval"].state != "approved":
+        return jsonify(to_dict(ApiError(
+            error="APPROVAL_REQUIRED", detail="Control publication requires explicit human approval.",
+            correlation_id=cid, next_action=f"POST /api/v1/controls/{control_id}/approve",
+        ))), 409
     pub_resp = PublicationResponse(
         status="reflex-owned", count=0,
         reflex_owned=["Assertion definitions", "Backtest run events", "Control execution results"],
@@ -282,3 +350,25 @@ def list_runs():
 
 def _get_current_run() -> dict | None:
     return _runs.get(_current_run_id) if _current_run_id else None
+
+
+def _find_run_by_incident(incident_id: str) -> dict | None:
+    for run in _runs.values():
+        if run.get("incident_id") == incident_id:
+            return run
+    return None
+
+
+def _lesson_response(lesson, incident_id: str, extraction_mode: str) -> LessonResponse:
+    return LessonResponse(
+        lesson_id=lesson.lesson_id,
+        title=lesson.title,
+        failure_category=lesson.failure_pattern.category.value,
+        failure_pattern=str(lesson.failure_pattern),
+        vulnerable_characteristics=list(lesson.vulnerable_characteristics),
+        control_type=lesson.candidate_preventive_control.control_type.value,
+        propagation_scope=list(lesson.intended_propagation_scope),
+        confidence=lesson.confidence.value,
+        source_incident_urn=incident_id,
+        extraction_mode=extraction_mode,
+    )

@@ -7,13 +7,18 @@ import json
 import pytest
 
 from ui.app import app as flask_app
+from reflex.api import routes as api_routes
 
 
 @pytest.fixture
 def client():
     flask_app.config["TESTING"] = True
+    api_routes._runs.clear()
+    api_routes._current_run_id = None
     with flask_app.test_client() as c:
         yield c
+    api_routes._runs.clear()
+    api_routes._current_run_id = None
 
 
 class TestAPIHealth:
@@ -43,10 +48,9 @@ class TestAPIIncidentAnalysis:
         assert resp.status_code == 200
         data = resp.get_json()
         assert "run_id" in data
-        assert data["current_step"] == 3
-        assert data["incident"]["root_cause_approved"] is True
-        assert data["lesson"]["failure_category"] == "data_quality"
-        assert data["lesson"]["control_type"] == "uniqueness"
+        assert data["current_step"] == 1
+        assert data["incident"]["root_cause_approved"] is False
+        assert data["lesson"] is None
 
     def test_analyze_incident_missing_fields(self, client):
         resp = client.post(
@@ -54,15 +58,26 @@ class TestAPIIncidentAnalysis:
             data=json.dumps({}),
             content_type="application/json",
         )
-        assert resp.status_code == 500
+        assert resp.status_code == 400
         data = resp.get_json()
         assert "error" in data
 
 
 class TestAPIApproval:
     def test_approve_root_cause(self, client):
+        client.post(
+            "/api/v1/incidents/urn:li:incident:approval-001/analyze",
+            data=json.dumps({
+                "incident_title": "Approval test",
+                "incident_description": "Duplicate rows after retry.",
+                "incident_custom_type": "DUPLICATE_ROWS",
+                "human_confirmed_root_cause": "Retry was not idempotent.",
+                "confirmed_by": "submitter",
+                "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+            }), content_type="application/json",
+        )
         resp = client.post(
-            "/api/v1/incidents/test-001/root-cause/approve",
+            "/api/v1/incidents/urn:li:incident:approval-001/root-cause/approve",
             data=json.dumps({"decision": "approved", "approver": "tester"}),
             content_type="application/json",
         )
@@ -70,10 +85,23 @@ class TestAPIApproval:
         data = resp.get_json()
         assert data["state"] == "approved"
         assert data["approval_type"] == "root_cause"
+        run_id = client.get("/api/v1/runs").get_json()["runs"][0]["run_id"]
+        assert client.get(f"/api/v1/runs/{run_id}").get_json()["lesson"] is not None
 
     def test_reject_root_cause(self, client):
+        client.post(
+            "/api/v1/incidents/urn:li:incident:approval-002/analyze",
+            data=json.dumps({
+                "incident_title": "Approval test",
+                "incident_description": "Duplicate rows after retry.",
+                "incident_custom_type": "DUPLICATE_ROWS",
+                "human_confirmed_root_cause": "Unconfirmed cause.",
+                "confirmed_by": "submitter",
+                "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+            }), content_type="application/json",
+        )
         resp = client.post(
-            "/api/v1/incidents/test-001/root-cause/approve",
+            "/api/v1/incidents/urn:li:incident:approval-002/root-cause/approve",
             data=json.dumps({"decision": "rejected", "approver": "tester"}),
             content_type="application/json",
         )
@@ -87,9 +115,8 @@ class TestAPIApproval:
             data=json.dumps({"decision": "approved", "approver": "tester"}),
             content_type="application/json",
         )
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["state"] == "approved"
+        assert resp.status_code == 404
+        assert resp.get_json()["error"] == "NOT_FOUND"
 
     def test_reject_control(self, client):
         resp = client.post(
@@ -97,9 +124,8 @@ class TestAPIApproval:
             data=json.dumps({"decision": "rejected", "approver": "tester"}),
             content_type="application/json",
         )
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["state"] == "rejected"
+        assert resp.status_code == 404
+        assert resp.get_json()["error"] == "NOT_FOUND"
 
 
 class TestAPIBacktestAndPublish:
@@ -110,10 +136,8 @@ class TestAPIBacktestAndPublish:
             data=json.dumps({"target_field": "transaction_id"}),
             content_type="application/json",
         )
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert "backtest" in data
-        assert data["backtest"]["can_recommend"] is True
+        assert resp.status_code == 400
+        assert resp.get_json()["error"] == "NO_ACTIVE_RUN"
 
     def test_full_workflow(self, client):
         """Complete API workflow: analyze → backtest → approve → publish."""
@@ -133,9 +157,18 @@ class TestAPIBacktestAndPublish:
         )
         assert r1.status_code == 200
         run_id = r1.get_json()["run_id"]
-        lesson_id = r1.get_json()["lesson"]["lesson_id"]
+        assert r1.get_json()["lesson"] is None
 
-        # Step 2: Backtest
+        # Step 2: Explicit root-cause approval
+        r_approval = client.post(
+            "/api/v1/incidents/urn:li:incident:full-flow-001/root-cause/approve",
+            data=json.dumps({"decision": "approved", "approver": "tester"}),
+            content_type="application/json",
+        )
+        assert r_approval.status_code == 200
+        lesson_id = client.get(f"/api/v1/runs/{run_id}").get_json()["lesson"]["lesson_id"]
+
+        # Step 3: Backtest
         r2 = client.post(
             f"/api/v1/lessons/{lesson_id}/backtest",
             data=json.dumps({"target_field": "transaction_id"}),
@@ -147,7 +180,7 @@ class TestAPIBacktestAndPublish:
         assert len(data2["similar_assets"]) >= 1
         control_id = data2["control"]["control_id"]
 
-        # Step 3: Approve control
+        # Step 4: Approve control
         r3 = client.post(
             f"/api/v1/controls/{control_id}/approve",
             data=json.dumps({"decision": "approved", "approver": "tester"}),
@@ -155,7 +188,7 @@ class TestAPIBacktestAndPublish:
         )
         assert r3.status_code == 200
 
-        # Step 4: Publish
+        # Step 5: Publish
         r4 = client.post(
             f"/api/v1/controls/{control_id}/publish",
             data=json.dumps({}),
@@ -174,10 +207,44 @@ class TestAPIBacktestAndPublish:
             data=json.dumps({}),
             content_type="application/json",
         )
-        assert resp.status_code == 200
-        data = resp.get_json()
-        assert data["publication"]["status"] == "reflex-owned"
-        assert data["detection"]["detected"] is True
+        assert resp.status_code == 404
+        assert resp.get_json()["error"] == "NOT_FOUND"
+
+
+    def test_publish_blocked_before_control_approval(self, client):
+        """A backtested control cannot be published before human approval."""
+        payload = {
+            "incident_title": "Publish gate test",
+            "incident_description": "Duplicate rows after retry.",
+            "incident_custom_type": "DUPLICATE_ROWS",
+            "human_confirmed_root_cause": "Retry was not idempotent.",
+            "confirmed_by": "tester",
+            "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,finance_daily_ledger,PROD)",
+        }
+        r1 = client.post(
+            "/api/v1/incidents/urn:li:incident:publish-gate-001/analyze",
+            data=json.dumps(payload), content_type="application/json",
+        )
+        assert r1.status_code == 200
+        client.post(
+            "/api/v1/incidents/urn:li:incident:publish-gate-001/root-cause/approve",
+            data=json.dumps({"decision": "approved", "approver": "tester"}),
+            content_type="application/json",
+        )
+        run_id = r1.get_json()["run_id"]
+        run = client.get(f"/api/v1/runs/{run_id}").get_json()
+        backtest = client.post(
+            f"/api/v1/lessons/{run['lesson']['lesson_id']}/backtest",
+            data=json.dumps({"target_field": "transaction_id"}),
+            content_type="application/json",
+        ).get_json()
+        control_id = backtest["control"]["control_id"]
+        publish = client.post(
+            f"/api/v1/controls/{control_id}/publish",
+            data=json.dumps({}), content_type="application/json",
+        )
+        assert publish.status_code == 409
+        assert publish.get_json()["error"] == "APPROVAL_REQUIRED"
 
 
 class TestAPIRuns:

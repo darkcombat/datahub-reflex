@@ -5,7 +5,7 @@ is deliberately deferred until the product and the demo path are frozen.
 
 ## Current status — 2026-07-23
 
-Completed through the rehearsal phase:
+Completed through the rehearsal phase, plus the first product-API hardening pass:
 
 - baseline and issue register;
 - live DataHub hardening;
@@ -13,6 +13,7 @@ Completed through the rehearsal phase:
 - UI/UX review;
 - repository and upstream-contribution analysis;
 - two clean-checkout rehearsals.
+- approval-gated Product API flow with regression coverage.
 
 There are no BLOCKER or HIGH issues in the current register. The remaining
 technical items are MEDIUM/LOW maintenance and must not destabilize the two
@@ -128,4 +129,5 @@ If time is lost, cut in this order:
 Perform a maintenance triage of the remaining MEDIUM issues. Decide whether
 the Pydantic deprecation warning and the unused OSS GraphQL read methods can be
 fixed safely without touching the critical live paths. If not, document them
-and leave the MVP frozen. Do not begin recording the video yet.
+and leave the MVP frozen. Do not begin recording the video until the manual
+approval path has been rehearsed in the product UI.

@@ -36,15 +36,16 @@
 
 - [ ] Record public demo video under three minutes
 - [ ] Verify the video URL is public
-- [x] Run the demo from a clean checkout (audit, CLI demo, and 90-test suite passed)
-- [x] Re-run the full test commands and record outputs (122 offline tests, 8 live tests, benchmark GO)
+- [x] Run the demo from a clean checkout (audit, CLI demo, and offline suite passed)
+- [x] Re-run the verification commands and record outputs (122 offline tests, 8 live tests, benchmark GO)
 - [ ] Confirm Devpost category: `Agents That Do Real Work`
 - [ ] Add final repository URL and video URL to the Devpost submission
-- [x] P0-P2 product development complete (LLM client, API surface, upstream patches)
+- [x] P0/P1 implementation complete for the current MVP (LLM client, approval-gated API surface)
+- [ ] P2 upstream patches submitted (currently prepared locally only)
 
 ## Known honest limitations
 
 - Backtesting history is synthetic JSON, not DataHub timeseries.
-- Lesson extraction uses deterministic MVP templates.
+- Lesson extraction defaults to deterministic MVP templates; API mode is available but requires explicit configuration and credentials.
 - OSS stores Reflex metadata and incidents; Reflex executes controls.
 - Remote DataHub reset is intentionally soft and preserves emitted metadata.
