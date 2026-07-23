@@ -250,6 +250,16 @@ class TestDemoRunner:
         # Synthetic mode labels
         assert "synthetic" in state.similarity_mode
 
+        # The UI contract must expose readable values, not Pydantic model
+        # reprs, and must preserve the evidence behind each selected asset.
+        assert state.failure_pattern == "data_quality"
+        assert state.similar_assets
+        candidate = state.similar_assets[0]
+        assert isinstance(candidate["score"], float)
+        assert candidate["matched_signals"]
+        assert candidate["missing_signals"]
+        assert candidate["origin"] == "synthetic"
+
     def test_run_full_orphaned_ownership(self, runner):
         """Full run for orphaned ownership scenario."""
         import asyncio

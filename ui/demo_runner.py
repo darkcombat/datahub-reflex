@@ -107,6 +107,41 @@ class DemoState:
     mode_label: str = "SYNTHETIC MODE"  # "SYNTHETIC MODE" | "LIVE DATAHUB MODE"
 
 
+def _enum_value(value: Any) -> Any:
+    """Return a JSON/UI-friendly value without leaking enum reprs."""
+    return getattr(value, "value", value)
+
+
+def _failure_pattern_label(pattern: Any) -> str:
+    """Flatten FailurePattern models to the stable category label shown in UI."""
+    category = getattr(pattern, "category", None)
+    return str(_enum_value(category if category is not None else pattern))
+
+
+def _similar_asset_for_ui(candidate: Any, *, origin: str) -> dict[str, Any]:
+    """Normalize resolver candidates into one stable UI contract."""
+    score = getattr(candidate, "score", None)
+    confidence = _enum_value(getattr(candidate, "confidence", ""))
+    matched = getattr(candidate, "matched_signals", None)
+    if matched is None:
+        matched = getattr(candidate, "matched_characteristics", [])
+    missing = getattr(candidate, "missing_signals", [])
+    rationale = getattr(candidate, "explanation", "")
+    if not rationale:
+        rationale = getattr(candidate, "similarity_rationale", "")
+    return {
+        "asset_urn": getattr(candidate, "asset_urn", str(candidate)),
+        "asset_name": getattr(candidate, "asset_name", ""),
+        "score": round(float(score), 3) if isinstance(score, (int, float)) else None,
+        "confidence": str(confidence) if confidence else "",
+        "rationale": str(rationale),
+        "matched_signals": [str(signal) for signal in (matched or [])],
+        "missing_signals": [str(signal) for signal in (missing or [])],
+        "selected": bool(getattr(candidate, "selected", True)),
+        "origin": origin,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Demo runner
 # ---------------------------------------------------------------------------
@@ -312,7 +347,7 @@ class DemoRunner:
             lesson = result["lesson"]
             self.state.lesson_id = lesson.lesson_id
             self.state.lesson_title = lesson.title
-            self.state.failure_pattern = lesson.failure_pattern.value if hasattr(lesson.failure_pattern, 'value') else str(lesson.failure_pattern)
+            self.state.failure_pattern = _failure_pattern_label(lesson.failure_pattern)
             self.state.vulnerable_characteristics = list(lesson.vulnerable_characteristics)
             self.state.lesson_confidence = lesson.confidence.value if hasattr(lesson.confidence, 'value') else str(lesson.confidence)
             self.state.current_step = 3
@@ -329,12 +364,7 @@ class DemoRunner:
             # Step 5: Similar assets
             sim_assets = result.get("similar_assets", [])
             self.state.similar_assets = [
-                {
-                    "asset_urn": a.asset_urn if hasattr(a, 'asset_urn') else str(a),
-                    "confidence": a.confidence.value if hasattr(a.confidence, 'value') else str(getattr(a, 'confidence', 'unknown')),
-                    "rationale": getattr(a, 'similarity_rationale', ''),
-                    "domain": getattr(a, 'domain', ''),
-                }
+                _similar_asset_for_ui(a, origin=self.state.similarity_mode)
                 for a in sim_assets
             ]
             self.state.current_step = 5
@@ -451,7 +481,20 @@ class DemoRunner:
                 self.state.backtest_precision = metrics.precision
                 self.state.backtest_recall = metrics.recall
                 self.state.backtest_would_have_prevented = True
-                self.state.similar_assets = [{"asset_urn": r.asset_urn, "rationale": r.replacement_rationale} for r in replacements]
+                self.state.similar_assets = [
+                    {
+                        "asset_urn": r.asset_urn,
+                        "asset_name": r.asset_name,
+                        "score": None,
+                        "confidence": "candidate",
+                        "rationale": r.replacement_rationale,
+                        "matched_signals": ["inactive owner", "replacement available"],
+                        "missing_signals": [],
+                        "selected": True,
+                        "origin": self.state.similarity_mode,
+                    }
+                    for r in replacements
+                ]
                 self.state.approval_state = "pending"
                 self.state.approval_notes = "Ownership control backtested. Waiting for explicit publication approval."
                 self.state.current_step = 7
@@ -525,20 +568,14 @@ class DemoRunner:
             })
             self.state.lesson_id = lesson.lesson_id
             self.state.lesson_title = lesson.title
-            self.state.failure_pattern = str(
-                getattr(lesson.failure_pattern, "value", lesson.failure_pattern)
-            )
+            self.state.failure_pattern = _failure_pattern_label(lesson.failure_pattern)
             self.state.vulnerable_characteristics = list(lesson.vulnerable_characteristics)
             self.state.lesson_confidence = str(lesson.confidence.value)
             self.state.control_id = control.control_id
             self.state.control_type = control.control_type.value
             self.state.control_definition = control.control_definition
             self.state.similar_assets = [
-                {
-                    "asset_urn": candidate.asset_urn,
-                    "confidence": candidate.score,
-                    "rationale": candidate.explanation,
-                }
+                _similar_asset_for_ui(candidate, origin=self.state.similarity_mode)
                 for candidate in candidates
                 if candidate.selected
             ]

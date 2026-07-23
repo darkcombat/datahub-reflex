@@ -18,6 +18,15 @@
   const $ = (selector) => document.querySelector(selector);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const ownerBadge = (owner) => owner.includes('DataHub') ? '<span class="badge badge-datahub">DATAHUB OSS</span>' : '<span class="badge badge-reflex">REFLEX</span>';
+  const prettyLabel = (value) => String(value ?? '').replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  const signalList = (signals, className) => (signals || []).length ? `<div class="signal-list ${className}">${signals.map((signal) => `<span>${esc(prettyLabel(signal))}</span>`).join('')}</div>` : '';
+  const candidateCard = (asset) => {
+    const name = asset.asset_name || asset.asset_urn || 'Unnamed asset';
+    const hasScore = asset.score !== null && asset.score !== undefined && asset.score !== '';
+    const score = hasScore ? `${Math.round(Number(asset.score) * 100)}% match` : asset.confidence ? `${prettyLabel(asset.confidence)} confidence` : 'Candidate';
+    const rationale = asset.rationale ? `<p class="candidate-rationale">${esc(asset.rationale)}</p>` : '';
+    return `<div class="candidate-card"><div class="candidate-head"><strong title="${esc(asset.asset_urn || name)}">${esc(name)}</strong><span class="candidate-score">${esc(score)}</span></div><code>${esc(asset.asset_urn || '')}</code>${signalList(asset.matched_signals, 'signal-matched')}${signalList(asset.missing_signals, 'signal-missing')}${rationale}<small class="candidate-origin">Evidence: ${esc(asset.origin || 'Reflex')}</small></div>`;
+  };
   const statusFor = (step, current, complete, error) => error && step === current ? ['Blocked','is-blocked'] : complete || step < current ? ['Done','is-done'] : step === current ? ['In progress','is-active'] : [current ? 'Next' : 'Waiting',''];
   const stateMessage = (step, current, data) => {
     if (step === 1) return data?.incident_title ? `<strong>${esc(data.incident_title)}</strong><br><code>${esc(data.incident_urn)}</code>` : 'Start an analysis to load incident evidence.';
@@ -27,11 +36,11 @@
       const action = approval === 'pending' && !data.is_complete ? '<div class="step-actions"><button class="button primary" data-approval="approved" type="button">Approve root cause</button><button class="button quiet" data-approval="rejected" type="button">Reject</button></div>' : '';
       return `<strong>Proposed cause:</strong> ${esc(data.root_cause)}<br><span>${esc(approval.toUpperCase())}</span>${action}`;
     }
-    if (step === 3) return data?.lesson_id ? `<strong>${esc(data.lesson_title)}</strong><br>Pattern: <code>${esc(data.failure_pattern)}</code>` : 'This appears after the root cause is approved.';
+    if (step === 3) return data?.lesson_id ? `<strong>${esc(data.lesson_title)}</strong><br>Pattern: <span class="pattern-label">${esc(prettyLabel(data.failure_pattern))}</span>` : 'This appears after the root cause is approved.';
     if (step === 4) return data?.control_id ? `<strong>${esc(data.control_type)}</strong><br><code>${esc(data.control_id)}</code>` : 'The control is created from the approved lesson.';
     if (step === 5) {
       if (current < 5 || !data?.incident_title) return 'Similar assets are evaluated after the control is defined.';
-      return data.similar_assets?.length ? data.similar_assets.map((asset) => `<div><strong>${esc(asset.asset_urn || asset.asset_name)}</strong> <span>score ${esc(asset.score)}</span></div>`).join('') : 'No candidates matched the current signals.';
+      return data.similar_assets?.length ? data.similar_assets.map(candidateCard).join('') : 'No candidates matched the current signals.';
     }
     if (step === 6) {
       if (current < 6 || !data?.incident_title) return 'Backtest starts after similar assets are selected.';
