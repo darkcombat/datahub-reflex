@@ -19,6 +19,7 @@ and run-result events for discoverability.
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 import httpx
@@ -35,12 +36,19 @@ class DataHubWriteClient:
     OSS_ASSERTION_DEFINITIONS = False
     OSS_ASSERTION_RUN_EVENTS = False
 
-    def __init__(self, gms_url: str = "http://localhost:8080", token: str = "") -> None:
-        self._gms_url = gms_url.rstrip("/")
-        self._token = token
+    def __init__(self, gms_url: str | None = None, token: str | None = None) -> None:
+        """Create a client using explicit values or process configuration.
+
+        Environment fallback keeps live Docker workflows pointed at the GMS
+        host instead of the Reflex container's own localhost.
+        """
+        resolved_url = gms_url or os.environ.get("DATAHUB_GMS_URL", "http://localhost:8080")
+        resolved_token = token if token is not None else os.environ.get("DATAHUB_TOKEN", "")
+        self._gms_url = resolved_url.rstrip("/")
+        self._token = resolved_token
         self._headers: dict[str, str] = {"Content-Type": "application/json"}
-        if token:
-            self._headers["Authorization"] = f"Bearer {token}"
+        if resolved_token:
+            self._headers["Authorization"] = f"Bearer {resolved_token}"
 
     async def _ingest(self, entity_type: str, aspect_type: str, urn: str, aspect: dict[str, Any]) -> dict[str, Any]:
         """Ingest a metadata aspect via the /openapi endpoint."""

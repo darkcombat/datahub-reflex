@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from typing import Any
 
 import httpx
@@ -31,12 +32,20 @@ class DataHubReadClient:
     and returns typed results. No business logic, no orchestration.
     """
 
-    def __init__(self, gms_url: str = "http://localhost:8080", token: str = "") -> None:
-        self._gms_url = gms_url.rstrip("/")
-        self._token = token
+    def __init__(self, gms_url: str | None = None, token: str | None = None) -> None:
+        """Create a client, optionally using the process DataHub configuration.
+
+        Explicit arguments win.  Falling back to environment variables is
+        important for the Docker UI: ``localhost`` inside the Reflex
+        container is not the DataHub GMS container.
+        """
+        resolved_url = gms_url or os.environ.get("DATAHUB_GMS_URL", "http://localhost:8080")
+        resolved_token = token if token is not None else os.environ.get("DATAHUB_TOKEN", "")
+        self._gms_url = resolved_url.rstrip("/")
+        self._token = resolved_token
         self._headers: dict[str, str] = {"Content-Type": "application/json"}
-        if token:
-            self._headers["Authorization"] = f"Bearer {token}"
+        if resolved_token:
+            self._headers["Authorization"] = f"Bearer {resolved_token}"
 
     async def _query(self, query: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
         """Execute a raw GraphQL query against DataHub GMS."""
