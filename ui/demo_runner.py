@@ -10,6 +10,7 @@ Nothing is fabricated.
 
 from __future__ import annotations
 
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -127,20 +128,29 @@ class DemoRunner:
     ) -> None:
         self.lessons_dir = lessons_dir or Path("./datasets")
         self.use_live_datahub = use_live_datahub
+        llm_mode = os.environ.get("REFLEX_LLM_MODE", "deterministic").strip().lower()
+        mode_label = "LIVE DATAHUB MODE" if use_live_datahub else "SYNTHETIC MODE"
+        if llm_mode == "api":
+            mode_label += " (LLM: API)"
+        else:
+            mode_label += " (LLM: deterministic)"
         self.state = DemoState(
             similarity_mode="live-datahub" if use_live_datahub else "synthetic",
             publication_mode="live-datahub" if use_live_datahub else "reflex-owned",
-            mode_label="LIVE DATAHUB MODE" if use_live_datahub else "SYNTHETIC MODE",
+            mode_label=mode_label,
             backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context: dict[str, Any] = {}
 
     def reset(self) -> None:
         """Reset to initial state."""
+        llm_mode = os.environ.get("REFLEX_LLM_MODE", "deterministic").strip().lower()
+        mode_label = "LIVE DATAHUB MODE" if self.use_live_datahub else "SYNTHETIC MODE"
+        mode_label += " (LLM: API)" if llm_mode == "api" else " (LLM: deterministic)"
         self.state = DemoState(
             similarity_mode="live-datahub" if self.use_live_datahub else "synthetic",
             publication_mode="live-datahub" if self.use_live_datahub else "reflex-owned",
-            mode_label="LIVE DATAHUB MODE" if self.use_live_datahub else "SYNTHETIC MODE",
+            mode_label=mode_label,
             backtest_data_provenance="SYNTHETIC (JSON snapshots)",
         )
         self._phase3_context = {}
