@@ -66,8 +66,8 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 
 | ID | Severity | Summary |
 |----|----------|---------|
-| MED-01 | MEDIUM | Hardcoded test count in `scripts/demo.py` |
-| MED-02 | MEDIUM | Pydantic V2 deprecation warning |
+| MED-01 | MEDIUM | Hardcoded test count in `scripts/demo.py` (resolved) |
+| MED-02 | MEDIUM | Pydantic V2 deprecation warning (resolved) |
 
 #### MED-01 — Hardcoded test count in demo script
 
@@ -81,11 +81,13 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 #### MED-02 — Pydantic V2 deprecation warning
 
 - **Severity**: MEDIUM
+- **Status**: ✅ RESOLVED (2026-07-23, commit `e848d2a`)
 - **Evidence**: Pytest output: `PydanticDeprecatedSince20: Support for class-based config is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0.`
 - **Affected files**: One or more model files using class-based `Config` inner class
 - **Impact**: Will break when Pydantic V3 is released; no runtime impact today
 - **Recommended action**: Migrate class-based `Config` to `model_config = ConfigDict(...)` per Pydantic V2 migration guide
-- **Acceptance criterion**: No PydanticDeprecatedSince20 warning in test output
+- **Resolution**: Migrated `LessonExtractionResult` to `ConfigDict(use_enum_values=True)`; the offline and live suites pass without the warning.
+- **Acceptance criterion**: No PydanticDeprecatedSince20 warning in test output ✅
 - **Critical path**: No — future-proofing, not urgent for hackathon submission
 
 ---
@@ -162,10 +164,10 @@ Findings from the Days 3-6 hardening phase. No BLOCKER or HIGH issues were found
 |----------|-------|
 | BLOCKER  | 0     |
 | HIGH     | 0     |
-| MEDIUM   | 3     |
+| MEDIUM   | 1     |
 | LOW      | 3     |
 | EXTERNAL | 3     |
-| **Total** | **9** |
+| **Total** | **7** |
 
 No BLOCKER or HIGH issues found. The live DataHub paths are reliable and inspectable for both MVP scenarios.
 ---
@@ -176,8 +178,8 @@ No BLOCKER or HIGH issues found. The live DataHub paths are reliable and inspect
 |----------|-------|
 | BLOCKER  | 0     |
 | HIGH     | 0     |
-| MEDIUM   | 2     |
-| LOW      | 2     |
+| MEDIUM   | 1     |
+| LOW      | 3     |
 | EXTERNAL | 3     |
 | **Total** | **7** |
 
