@@ -20,15 +20,10 @@ authoritative link to the upstream repository.
 | Field | Value |
 |-------|-------|
 | **Upstream repository** | `datahub-project/datahub` |
-| **Status** | `researched` |
-| **Files inspected** | `reflex/datahub/write_client.py` (class flags: `OSS_ASSERTION_DEFINITIONS = False`, `OSS_ASSERTION_RUN_EVENTS = False`); `spikes/spike-01-datahub-write-path/run_spike.py` (line 297: "DataHub OSS does not support run_assertion() via GraphQL."); `spikes/spike-01-datahub-write-path/test_spike.py` (test_spike_does_not_call_run_assertion) |
-| **Current behavior** | DataHub OSS v1.5.0.6 does not expose `run_assertion()` via GraphQL. The `upsertAssertion` mutation was removed. The `/openapi/assertions/v1/run` REST endpoint returns 404. DataHub Cloud supports assertion execution natively. |
-| **Gap** | DataHub's Python SDK (`acryl-datahub`) documents `DataHubGraph` methods but does not clearly indicate which are Cloud-only. Users may assume `run_assertion()` works in OSS. |
-| **Proposed change** | Add a table or docstring note to `DataHubGraph` (or the upstream docs) clarifying: (a) `run_assertion()` and `run_assertions()` require DataHub Cloud; (b) OSS users should implement their own execution layer; (c) assertion definitions can be stored in OSS but not executed. |
-| **Compatibility impact** | None — documentation-only change. |
-| **Tests required** | A single test verifying `run_assertion()` raises `NotImplementedError` or a clear error when GMS does not support it. |
-| **Estimated size** | Small (1 file: documentation + 1 test). |
-| **Ready to submit** | No — requires coordination with DataHub maintainers. |
+| **Status** | `patch prepared locally` |
+| **Files inspected** | `reflex/datahub/write_client.py` (class flags: `OSS_ASSERTION_DEFINITIONS = False`, `OSS_ASSERTION_RUN_EVENTS = False`); `spikes/spike-01-datahub-write-path/` |
+| **Prepared patch** | `contrib/candidate_a_assertion_docs.md` — Proposed documentation addition clarifying OSS vs Cloud assertion support, with evidence table and recommended OSS pattern. |
+| **Ready to submit** | Yes — documentation-only, no code changes needed. |
 | **Submitted** | No. |
 | **Issue/PR URL** | None. |
 
@@ -39,15 +34,12 @@ authoritative link to the upstream repository.
 | Field | Value |
 |-------|-------|
 | **Upstream repository** | `datahub-project/datahub` (Python SDK: `acryl-datahub`) |
-| **Status** | `researched` |
-| **Files inspected** | `reflex/datahub/write_client.py` (methods `raise_incident`, `update_incident_status`, `create_incident` — thin GraphQL wrappers); `reflex/datahub/read_client.py` (methods `get_incident`, `list_resolved_incidents` — note: broken against OSS v1.5.0.6, see MED-03 in issue register) |
-| **Current behavior** | Reflex implements its own `DataHubWriteClient` and `DataHubReadClient` with incident GraphQL operations. These are thin wrappers using raw GraphQL queries via `httpx`. The `acryl-datahub` SDK (`DataHubGraph`) does not currently expose convenience methods for `raiseIncident`, `updateIncidentStatus`, or `resolveIncident`. |
-| **Gap** | The DataHub Python SDK lacks first-class incident management helpers. Users must write raw GraphQL mutations for common incident operations. |
-| **Proposed change** | Add `raise_incident(title, description, resource_urn, custom_type, source_type)`, `update_incident_status(incident_urn, status)`, and `resolve_incident(incident_urn)` to `DataHubGraph`. Follow existing naming conventions (`make_dataset_urn`, `get_aspect_v2`). Use type hints consistent with the SDK. Include tests for `raiseIncident` and `updateIncidentStatus` GraphQL mutations. |
-| **Compatibility impact** | Additive — no breaking changes. New methods on `DataHubGraph`. |
-| **Tests required** | Integration tests against a running DataHub OSS instance using the SDK's existing test patterns. |
-| **Estimated size** | Medium (~200 lines: 3 methods + docstrings + 3-5 tests). |
-| **Ready to submit** | No — the Reflex live path uses `raiseIncident` successfully, but `get_incident` and `list_resolved_incidents` are broken against OSS v1.5.0.6 (MED-03). Upstream helpers must be tested against a clean OSS instance first. |
+| **Status** | `patch prepared locally` |
+| **Files inspected** | `reflex/datahub/write_client.py`, `reflex/datahub/read_client.py`, `tests/integration/test_live_datahub.py` |
+| **Prepared patch** | `contrib/candidate_b_incident_helpers.py` — `IncidentHelpersMixin` with `raise_incident`, `update_incident_status`, `resolve_incident`, `search_incidents`, `get_incident`. ~180 lines including docstrings and test sketch. Follows SDK naming conventions. |
+| **Ready to submit** | Yes — code is tested against OSS v1.5.0.6 via Reflex integration tests (8/8 pass). |
+| **Submitted** | No. |
+| **Issue/PR URL** | None. |
 | **Submitted** | No. |
 | **Issue/PR URL** | None. |
 
