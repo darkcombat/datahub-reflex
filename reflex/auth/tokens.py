@@ -23,13 +23,21 @@ import time
 from base64 import urlsafe_b64encode, urlsafe_b64decode
 from dataclasses import dataclass
 from functools import wraps
+from pathlib import Path
 from typing import Callable, Optional
 
 from flask import request, jsonify
 
+from reflex.core.env import load_dotenv
+
 
 def _secret() -> bytes:
     secret = os.environ.get("REFLEX_API_SECRET", "").strip()
+    if not secret:
+        # Auth must work independently of the web bootstrap order. Resolve
+        # the repository .env from this module's location, not CWD.
+        load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+        secret = os.environ.get("REFLEX_API_SECRET", "").strip()
     if not secret:
         raise RuntimeError("REFLEX_API_SECRET environment variable is required for authentication")
     return secret.encode("utf-8")

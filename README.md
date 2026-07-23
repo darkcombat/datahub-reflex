@@ -342,6 +342,14 @@ python scripts/demo.py --ui   # CLI + launch UI
 python scripts/demo.py --ui-only  # UI only
 ```
 
+For a local authenticated UI launch on Windows, use the environment-aware
+launcher. It loads `.env`, validates `REFLEX_API_SECRET`, and starts the
+product with the configured port:
+
+```powershell
+./scripts/start_ui.ps1
+```
+
 Outputs all 9 steps for both scenarios with clear labeling of synthetic data, Reflex-owned execution, and DataHub OSS boundaries.
 
 ## 20. Video Storyboard

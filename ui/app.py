@@ -14,10 +14,6 @@ Stack: Flask + Jinja2 templates + SQLite persistence. Zero npm.
 
 from __future__ import annotations
 
-# -- Load .env before any other config-dependent imports --
-from reflex.core.env import load_dotenv
-load_dotenv()
-
 import asyncio
 import json
 import os
@@ -25,6 +21,15 @@ import uuid
 from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
+
+# -- Load .env before any other config-dependent imports --
+from reflex.core.env import load_dotenv
+
+# Resolve the project environment file from the repository root rather than
+# the process working directory. This keeps auth and DataHub configuration
+# reliable when Flask is launched by a service manager or another directory.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(PROJECT_ROOT / ".env")
 
 from flask import Flask, jsonify, render_template, request
 

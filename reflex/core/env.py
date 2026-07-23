@@ -54,6 +54,8 @@ def load_dotenv(path: str | Path = ".env") -> None:
         ):
             value = value[1:-1]
 
-        # Never override existing env vars
-        if key and key not in os.environ:
+        # Never override a non-empty environment variable. Empty inherited
+        # variables are treated as unset so service launches can still load
+        # the configured value from the project .env file.
+        if key and (key not in os.environ or not os.environ[key].strip()):
             os.environ[key] = value
