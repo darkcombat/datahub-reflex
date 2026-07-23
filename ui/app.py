@@ -20,6 +20,7 @@ import os
 import uuid
 from dataclasses import asdict
 from datetime import UTC, datetime
+from functools import wraps
 from pathlib import Path
 
 # -- Load .env before any other config-dependent imports --
@@ -42,7 +43,7 @@ from reflex.api.routes import api_bp
 from reflex.persistence import init_db, database as db
 from reflex.api.errors import register_error_handlers
 from reflex.api.security import configure_security
-from reflex.auth import validate_token
+from reflex.auth import require_auth, require_role, validate_token
 
 app = Flask(
     __name__,
@@ -76,17 +77,6 @@ def _get_runner() -> DemoRunner:
 # ---------------------------------------------------------------------------
 
 
-@app.get("/api/state")
-def api_state():
-    """Return current demo state as JSON."""
-    runner = _get_runner()
-    state_dict = runner.to_dict()
-    # If we have an active run_id, include it for recovery reference
-    if runner._active_run_id:
-        state_dict["run_id"] = runner._active_run_id
-    return jsonify(state_dict)
-
-
 def _get_authenticated_identity() -> tuple[str | None, str | None]:
     """Extract subject and role from the Authorization header if present."""
     auth_header = request.headers.get("Authorization", "")
@@ -100,7 +90,45 @@ def _get_authenticated_identity() -> tuple[str | None, str | None]:
         return None, None
 
 
+def _ui_auth_required() -> bool:
+    """Whether the browser workflow is protected by the product auth boundary."""
+    return os.environ.get("REFLEX_UI_AUTH_REQUIRED", "false").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+
+def _enforce_ui_auth(view):
+    """Apply auth at request time so tests and process managers can configure it."""
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        return require_auth(view)(*args, **kwargs) if _ui_auth_required() else view(*args, **kwargs)
+    return wrapper
+
+
+def _enforce_ui_role(*roles: str):
+    """Apply role enforcement at request time when product auth is enabled."""
+    def decorator(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            return require_role(*roles)(view)(*args, **kwargs) if _ui_auth_required() else view(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+@app.get("/api/state")
+@_enforce_ui_auth
+def api_state():
+    """Return current demo state as JSON."""
+    runner = _get_runner()
+    state_dict = runner.to_dict()
+    # If we have an active run_id, include it for recovery reference
+    if runner._active_run_id:
+        state_dict["run_id"] = runner._active_run_id
+    return jsonify(state_dict)
+
+
 @app.post("/api/run")
+@_enforce_ui_role("admin")
 def api_run():
     """Start a new demo run. Expects JSON body with scenario and params.
     Persists state to SQLite for recovery after restart."""
@@ -167,6 +195,7 @@ def api_run():
 
 
 @app.post("/api/reset")
+@_enforce_ui_role("admin")
 def api_reset():
     """Reset the demo runner to initial state."""
     runner = _get_runner()
@@ -175,6 +204,7 @@ def api_reset():
 
 
 @app.post("/api/approve")
+@_enforce_ui_role("admin", "approver")
 def api_approve():
     """Apply an explicit human approval to the pending demo step.
     Uses authenticated identity when available, falls back to 'demo-user'."""
@@ -206,12 +236,14 @@ def api_approve():
 
 
 @app.get("/api/runs")
+@_enforce_ui_auth
 def api_list_runs():
     """List past runs from SQLite (survives restart)."""
     return jsonify({"runs": db.list_runs(), "persistence": "sqlite"})
 
 
 @app.get("/api/runs/<run_id>")
+@_enforce_ui_auth
 def api_get_run(run_id: str):
     """Load a past run's details from SQLite."""
     run = db.get_run(run_id)

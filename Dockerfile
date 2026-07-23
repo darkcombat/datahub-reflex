@@ -49,5 +49,9 @@ ENV REFLEX_UI_HOST=0.0.0.0
 ENV REFLEX_DB_PATH=/app/data/reflex.db
 ENV REFLEX_LESSONS_DIR=/app/data
 ENV REFLEX_LLM_MODE=deterministic
+ENV REFLEX_UI_AUTH_REQUIRED=true
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--threads", "4", "ui.app:app"]
+# The workflow runner is intentionally process-local and SQLite is the
+# persistence backend for the MVP. Keep one worker process and use threads so
+# startup cannot race on WAL initialization or split the active run state.
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--threads", "4", "ui.app:app"]

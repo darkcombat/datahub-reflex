@@ -34,6 +34,16 @@ the returned incident URN as the live verification signal; incident lesson
 content remains owned by the Reflex workflow. DataHub Cloud or a later OSS
 schema with incident reads can remove this limitation.
 
+### 1b. Browser authentication and process model
+
+The Docker/Compose product deployment enables `REFLEX_UI_AUTH_REQUIRED=true`.
+The browser workflow requires a valid token for reads, an `admin` role for
+starting/resetting runs, and `admin` or `approver` for approval actions. The
+zero-config local test server keeps this disabled unless explicitly enabled.
+The MVP runs one Gunicorn worker with multiple threads because the active
+workflow state is process-local and SQLite WAL initialization is not safe when
+multiple workers start concurrently.
+
 ### 2. Similarity resolution has two modes
 - **Live DataHub mode** (`use_live_datahub=True`): Uses `DataHubSimilarityResolver` which queries live DataHub via `searchAcrossEntities` (max 10 datasets), applies 6 signals (same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control), and raises an explicit `DataHubLiveQueryError` if DataHub is unreachable. It never falls back to synthetic data.
 - **Synthetic mode** (`use_live_datahub=False`, default): Uses the `SimilarityResolver` with in-memory datasets from `reflex.datahub.environment`.

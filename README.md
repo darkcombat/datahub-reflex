@@ -151,8 +151,22 @@ docker compose -f docker-compose.reflex.yml up --build
 REFLEX_LLM_MODE=api REFLEX_LLM_API_KEY=sk-... docker compose -f docker-compose.reflex.yml up
 
 # With authentication
-REFLEX_API_SECRET=my-production-secret docker compose -f docker-compose.reflex.yml up
+REFLEX_API_SECRET=my-production-secret \\
+REFLEX_BOOTSTRAP_SECRET=my-bootstrap-secret \\
+docker compose -f docker-compose.reflex.yml up
 ```
+
+The Docker/Compose deployment enables `REFLEX_UI_AUTH_REQUIRED=true`. Open the
+workspace, issue a short-lived token through the API auth endpoint, and paste
+it into **Connect token**. The browser keeps the token in `sessionStorage` only;
+it is never written to the repository or SQLite. The UI requires an `admin`
+token to start/reset a run and an `admin` or `approver` token to approve a gate.
+The local test/demo server leaves this boundary disabled unless
+`REFLEX_UI_AUTH_REQUIRED=true` is set explicitly.
+
+The container runs one Gunicorn worker with multiple threads. This is
+intentional for the MVP: the active workflow runner is process-local and the
+SQLite WAL database must not be initialized concurrently by multiple workers.
 
 ### API quick start
 

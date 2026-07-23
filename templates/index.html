@@ -14,8 +14,15 @@
       <span class="brand-mark" aria-hidden="true">R</span>
       <span><strong>DataHub <em>Reflex</em></strong><small>Reliability workspace</small></span>
     </a>
-    <div class="connection" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="connection-status">Ready</span><span class="mode-label" id="mode-label">Synthetic mode</span></div>
+    <div class="connection" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="connection-status">Ready</span><span class="mode-label" id="mode-label">Synthetic mode</span><button class="token-button" id="token-button" type="button">Connect token</button></div>
   </header>
+
+  <section class="auth-panel" id="auth-panel" aria-labelledby="auth-title" hidden>
+    <div class="auth-panel-inner">
+      <div><p class="eyebrow">PRODUCT ACCESS</p><h2 id="auth-title">Connect a Reflex token</h2><p>Use a short-lived token issued by the Reflex API. It stays in this browser session only.</p></div>
+      <div class="auth-form"><label for="token-input">Bearer token</label><div class="auth-controls"><input id="token-input" type="password" autocomplete="off" spellcheck="false" placeholder="Paste token from /api/v1/auth/token"><button class="button primary" id="save-token" type="button">Connect</button></div><small id="auth-message" role="status"></small></div>
+    </div>
+  </section>
 
   <main id="workspace" class="shell">
     <section class="hero" aria-labelledby="page-title">

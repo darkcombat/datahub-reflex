@@ -17,6 +17,7 @@ services:
     environment:
       - REFLEX_UI_PORT=5000
       - REFLEX_UI_HOST=0.0.0.0
+      - REFLEX_UI_AUTH_REQUIRED=${REFLEX_UI_AUTH_REQUIRED:-true}
       - REFLEX_LLM_MODE=${REFLEX_LLM_MODE:-deterministic}
       - REFLEX_LLM_API_KEY=${REFLEX_LLM_API_KEY:-}
       - REFLEX_LLM_MODEL=${REFLEX_LLM_MODEL:-gpt-4o}
