@@ -1,7 +1,7 @@
 {
   "generated_by": "evaluation_harness",
   "config": {
-    "evaluation_date": "2026-07-23T15:57:16.684763+00:00",
+    "evaluation_date": "2026-07-23T23:51:36.186651+00:00",
     "random_seed": 42,
     "dataset_version": "1.0.0",
     "prompt_version": "mvp-template-v1",
@@ -9,12 +9,12 @@
     "model": "deterministic-template",
     "environment": "synthetic",
     "datahub_version": "oss-1.5.0.6",
-    "git_commit": "555e6d12e986dea49667018b23c84d70af37e102",
+    "git_commit": "b0a834d8b3a0c4f6357afcdb5e903226c0caaf62",
     "python_version": "3.12.10",
     "execution_mode": "synthetic",
     "command": "python examples/evaluation/run_evaluation.py"
   },
-  "generated_at": "2026-07-23T15:57:17.032353+00:00",
+  "generated_at": "2026-07-23T23:51:36.479040+00:00",
   "confirmed": true,
   "approver": "alice@example.com"
 }
