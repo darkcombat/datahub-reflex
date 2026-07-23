@@ -52,6 +52,9 @@ class TestAPIEndpoints:
         assert resp.status_code == 200
         assert b"<!DOCTYPE html>" in resp.data
         assert b"DataHub Reflex" in resp.data
+        assert b'id="run-button"' in resp.data
+        assert b"Choose an incident pattern" in resp.data
+        assert b"Protection pipeline" in resp.data
 
     def test_state_endpoint_returns_json(self, client):
         """GET /api/state returns JSON with expected keys."""

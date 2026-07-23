@@ -307,6 +307,11 @@ footer a:hover { text-decoration: underline; }
   </div>
 </section>
 
+<div class="workflow-actions" aria-label="Workflow actions">
+  <button class="btn btn-primary btn-run" id="run-button" onclick="runDemo()"><span aria-hidden="true">▶</span> Start analysis</button>
+  <button class="btn btn-quiet" onclick="resetDemo()">Reset workspace</button>
+</div>
+
 <main id="main-content">
   <div id="error" class="error-box" style="display:none"></div>
   <div class="workspace-grid">
