@@ -65,7 +65,6 @@ The following `DataHubReadClient` methods use GraphQL fields that are absent or 
 | Method | Failure | Root cause |
 |--------|---------|------------|
 | `get_incident` | `Field 'incident' in type 'Query' is undefined` | Top-level `incident(urn:)` query field not available |
-| `list_resolved_incidents` | `Field 'type' in type 'IncidentStatus' is undefined` | Schema uses `state` not `type`; `entities` field removed |
 | `get_upstream_lineage` | `Field 'upstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
 | `get_downstream_lineage` | `Field 'downstreamLineage' in type 'Dataset' is undefined` | Lineage fields renamed or moved |
 | `get_tags` | `Field 'tags' in type 'Entity' is undefined` | Needs `... on Dataset` inline fragment |

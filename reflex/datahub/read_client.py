@@ -139,19 +139,11 @@ class DataHubReadClient:
                             title
                             description
                             status {
-                                type
+                                state
                             }
                             customType
                             created {
                                 time
-                            }
-                            entities {
-                                nodes {
-                                    entity {
-                                        urn
-                                        type
-                                    }
-                                }
                             }
                         }
                     }
@@ -164,7 +156,7 @@ class DataHubReadClient:
         return [
             r["entity"]
             for r in results
-            if r.get("entity", {}).get("status", {}).get("type") == "RESOLVED"
+            if r.get("entity", {}).get("status", {}).get("state") == "RESOLVED"
         ]
 
     # -- Lineage -----------------------------------------------------------------

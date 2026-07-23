@@ -128,12 +128,12 @@ Findings from the Days 3-6 hardening phase. No BLOCKER or HIGH issues were found
 
 | ID | Severity | Summary |
 |----|----------|---------|
-| MED-03 | MEDIUM | 7 `DataHubReadClient` methods use GraphQL fields absent in OSS v1.5.0.6 |
+| MED-03 | MEDIUM | 5 `DataHubReadClient` methods use GraphQL fields absent in OSS v1.5.0.6 |
 
 #### MED-03 — Broken GraphQL queries in DataHubReadClient (not in critical path)
 
 - **Severity**: MEDIUM
-- **Evidence**: Verified against live DataHub OSS v1.5.0.6 on 2026-07-22. Methods `get_incident`, `list_resolved_incidents`, `get_upstream_lineage`, `get_downstream_lineage`, `get_tags`, `get_structured_properties`, `get_assertion_definitions` all fail with GraphQL validation errors (fields undefined or renamed).
+- **Evidence**: Verified against live DataHub OSS v1.5.0.6 on 2026-07-22. Methods `get_upstream_lineage`, `get_downstream_lineage`, `get_tags`, `get_structured_properties`, and `get_assertion_definitions` still use fields absent or renamed in the tested schema. `get_incident` and `list_resolved_incidents` now use the working `searchAcrossEntities`/`state` shape.
 - **Affected file**: `reflex/datahub/read_client.py`
 - **Impact**: These methods are **not called by any live pipeline path** (Phase3Pipeline uses `DataHubSimilarityResolver` which calls `searchAcrossEntities`; Phase4Pipeline uses `search_datasets`, `get_owners`, `get_domain` — all verified working). The broken methods are dead code for MVP flows but exist in the public API surface and would confuse a developer.
 - **Recommended action**: Either fix the GraphQL queries against the v1.5.0.6 schema, or add `@deprecated` / `NotImplementedError` guards with clear documentation pointing to the working alternatives. Do not remove them without checking whether the synthetic evaluation path uses them (it may use in-memory data branches).
