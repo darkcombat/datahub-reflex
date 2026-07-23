@@ -1,5 +1,7 @@
 # DataHub Reflex
 
+[![CI](https://github.com/darkcombat/datahub-reflex/actions/workflows/ci.yml/badge.svg)](https://github.com/darkcombat/datahub-reflex/actions/workflows/ci.yml)
+
 Convert a human-confirmed data incident lesson into a backtested, executable preventive control and propagate it to similar assets through the DataHub graph.
 
 > Reflex does not make DataHub self-healing. It turns approved operational lessons into executable, testable, and reusable preventive controls.
@@ -234,6 +236,8 @@ All decisions persisted as JSON files with approver identity, timestamp, and pro
 | Search across entities | ✅ | ✅ | Used for candidate discovery |
 
 **Reflex never calls `run_assertion()`.** Verified by automated test.
+
+> 📘 **Migrating to DataHub Cloud?** See [docs/datahub-cloud.md](docs/datahub-cloud.md) for the migration path, benefits, and Cloud-native assertion storage.
 
 ## 12. Evaluation methodology
 
