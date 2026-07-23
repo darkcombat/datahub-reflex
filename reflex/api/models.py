@@ -109,6 +109,10 @@ class LessonResponse:
     confidence: str = ""
     extraction_mode: str = "deterministic"
     model_identifier: str = ""
+    prompt_version: str = ""
+    token_count: int | None = None
+    cost_estimate: float | None = None
+    request_id: str = ""
     source_incident_urn: str = ""
 
 

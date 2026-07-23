@@ -87,14 +87,14 @@ def analyze_incident(incident_id: str):
             )
             await pipeline.step2_submit_root_cause(incident_id, inc["proposed_root_cause"])
             root = await pipeline.step2_approve_root_cause(incident_id, data.get("confirmed_by", "api-user"))
-            lesson, _ = await pipeline.step3_extract_lesson(
+            lesson, extraction_record = await pipeline.step3_extract_lesson(
                 incident_id, inc["title"], inc["description"],
                 root.final_root_cause, data.get("confirmed_by", "api-user"),
                 inc["affected_asset_urn"], data.get("incident_custom_type", ""),
             )
-            return inc, root, lesson
+            return inc, root, lesson, extraction_record
 
-        incident, root, lesson = asyncio.run(_run())
+        incident, root, lesson, extraction_record = asyncio.run(_run())
 
         run_id = str(uuid.uuid4())
         db.create_run(run_id, scenario)
@@ -107,7 +107,11 @@ def analyze_incident(incident_id: str):
             title=lesson.title, failure_category=lesson.failure_pattern.category.value,
             vulnerable_characteristics=list(lesson.vulnerable_characteristics),
             control_type=lesson.candidate_preventive_control.control_type.value,
-            confidence=lesson.confidence.value)
+            confidence=lesson.confidence.value,
+            extraction_mode=extraction_record.extraction_mode,
+            model_identifier=extraction_record.model_identifier,
+            assumptions=list(extraction_record.parsed_output.assumptions) if extraction_record.parsed_output else [],
+            limitations=list(extraction_record.parsed_output.limitations) if extraction_record.parsed_output else [])
         db.update_run(run_id, current_step=3)
 
         incident_resp = IncidentResponse(incident_urn=incident_id, title=incident["title"],
@@ -120,7 +124,14 @@ def analyze_incident(incident_id: str):
             vulnerable_characteristics=list(lesson.vulnerable_characteristics),
             control_type=lesson.candidate_preventive_control.control_type.value,
             propagation_scope=list(lesson.intended_propagation_scope),
-            confidence=lesson.confidence.value, source_incident_urn=incident_id)
+            confidence=lesson.confidence.value,
+            extraction_mode=extraction_record.extraction_mode,
+            model_identifier=extraction_record.model_identifier,
+            prompt_version=extraction_record.prompt_version,
+            token_count=extraction_record.token_count,
+            cost_estimate=extraction_record.cost_estimate,
+            request_id=extraction_record.request_id or "",
+            source_incident_urn=incident_id)
 
         return jsonify(to_dict(RunResponse(run_id=run_id,
             started_at=datetime.now(UTC).isoformat(), current_step=3, is_complete=False,

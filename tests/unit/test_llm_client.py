@@ -22,6 +22,7 @@ from reflex.core.lesson_extractor import (
     ExtractedFailureCategory,
     ExtractedTrigger,
     ExtractedVulnerability,
+    LessonExtractor,
     LessonExtractionResult,
 )
 from reflex.core.llm_client import (
@@ -262,3 +263,27 @@ class TestOutputProvenance:
         assert output.prompt_version == "mvp-template-v1"
         assert output.extraction_mode == "deterministic"
         assert output.elapsed_ms >= 0
+
+
+class TestExtractorModeBoundary:
+    """The extractor must not hide API configuration failures."""
+
+    def test_api_mode_missing_key_never_falls_back(self, monkeypatch, tmp_path) -> None:
+        monkeypatch.setenv("REFLEX_LLM_MODE", "api")
+        monkeypatch.delenv("REFLEX_LLM_API_KEY", raising=False)
+
+        extractor = LessonExtractor(records_dir=tmp_path / "extractions")
+
+        async def run():
+            return await extractor.extract(
+                incident_urn=sample_input().incident_urn,
+                incident_title=sample_input().incident_title,
+                incident_description=sample_input().incident_description,
+                human_confirmed_root_cause=sample_input().human_confirmed_root_cause,
+                confirmed_by="tester",
+                target_asset_urn="urn:li:dataset:test",
+                incident_custom_type="DUPLICATE_ROWS",
+            )
+
+        with pytest.raises(LLMAuthenticationError):
+            asyncio.run(run())

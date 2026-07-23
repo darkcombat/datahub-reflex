@@ -130,6 +130,12 @@ class ExtractionRecord:
     raw_output: str  # Raw output (JSON string)
     parsed_output: LessonExtractionResult | None
     validation_errors: list[str]
+    extraction_mode: str = "deterministic"
+    model_identifier: str = ""
+    prompt_version: str = ""
+    token_count: int | None = None
+    cost_estimate: float | None = None
+    request_id: str | None = None
     extracted_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
@@ -168,12 +174,7 @@ class LessonExtractor:
         reproducibility.
         """
         # Build input for the extraction
-        from reflex.core.llm_client import (
-            ExtractionInput,
-            LLMClient,
-            LLMFallbackProhibitedError,
-            create_llm_client,
-        )
+        from reflex.core.llm_client import ExtractionInput, create_llm_client
 
         extraction_input = ExtractionInput(
             incident_urn=incident_urn,
@@ -183,19 +184,16 @@ class LessonExtractor:
             incident_custom_type=incident_custom_type,
         )
 
-        # Select client: injected > env var > default deterministic
+        # Select client: injected > configured mode > deterministic default.
+        # Do not catch client-construction errors: API mode must never fall
+        # back silently when credentials or configuration are invalid.
         client = self._llm_client
         if client is None:
-            try:
-                client = create_llm_client()
-            except Exception:
-                client = create_llm_client("deterministic")
+            client = create_llm_client()
 
         # Run extraction
         try:
             output = await client.extract_lesson(extraction_input)
-        except LLMFallbackProhibitedError:
-            raise
         except Exception as exc:
             if client.mode == "api":
                 raise
@@ -237,6 +235,12 @@ class LessonExtractor:
             raw_output=raw_output,
             parsed_output=parsed if not validation_errors else None,
             validation_errors=validation_errors,
+            extraction_mode=output.extraction_mode,
+            model_identifier=output.model_identifier,
+            prompt_version=output.prompt_version,
+            token_count=output.token_count,
+            cost_estimate=output.cost_estimate,
+            request_id=output.request_id,
         )
 
         # Persist record for reproducibility
