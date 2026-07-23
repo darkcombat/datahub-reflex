@@ -31,6 +31,7 @@ from reflex.api.models import (
 )
 from reflex.core.phase3_pipeline import Phase3Pipeline
 from reflex.persistence import database as db
+from reflex.auth import create_token, require_auth, require_role
 
 api_bp = Blueprint("api_v1", __name__, url_prefix="/api/v1")
 
@@ -40,7 +41,30 @@ def health():
     return jsonify({"status": "ok", "timestamp": datetime.now(UTC).isoformat(), "persistence": "sqlite"})
 
 
+# -- Authentication -----------------------------------------------------------
+
+
+@api_bp.post("/auth/token")
+def create_auth_token():
+    """Create an authentication token. Requires REFLEX_API_SECRET in env."""
+    data = request.get_json(silent=True) or {}
+    subject = data.get("subject", "api-user")
+    role = data.get("role", "viewer")
+    if role not in ("admin", "approver", "viewer"):
+        return jsonify({"error": "INVALID_ROLE", "detail": f"Role must be admin, approver, or viewer. Got: {role}"}), 400
+    try:
+        token = create_token(subject=subject, role=role)
+        return jsonify({"token": token, "subject": subject, "role": role,
+                        "note": "Use as: Authorization: Bearer <token>"})
+    except RuntimeError as e:
+        return jsonify({"error": "AUTH_NOT_CONFIGURED", "detail": str(e)}), 500
+
+
+# -- Incidents ----------------------------------------------------------------
+
+
 @api_bp.post("/incidents/<incident_id>/analyze")
+@require_role("admin", "approver")
 def analyze_incident(incident_id: str):
     data = request.get_json(silent=True) or {}
     cid = str(uuid.uuid4())[:8]
@@ -102,6 +126,7 @@ def analyze_incident(incident_id: str):
 
 
 @api_bp.post("/incidents/<incident_id>/root-cause/approve")
+@require_role("admin", "approver")
 def approve_root_cause(incident_id: str):
     data = request.get_json(silent=True) or {}
     decision = data.get("decision", "approved")
@@ -121,6 +146,7 @@ def get_lesson(lesson_id: str):
 
 
 @api_bp.post("/lessons/<lesson_id>/backtest")
+@require_role("admin", "approver")
 def backtest_lesson(lesson_id: str):
     data = request.get_json(silent=True) or {}
     cid = str(uuid.uuid4())[:8]
@@ -190,6 +216,7 @@ def get_control(control_id: str):
 
 
 @api_bp.post("/controls/<control_id>/approve")
+@require_role("admin", "approver")
 def approve_control(control_id: str):
     data = request.get_json(silent=True) or {}
     decision = data.get("decision", "approved")
@@ -205,6 +232,7 @@ def approve_control(control_id: str):
 
 
 @api_bp.post("/controls/<control_id>/publish")
+@require_role("admin",)
 def publish_control(control_id: str):
     cid = str(uuid.uuid4())[:8]
     data = request.get_json(silent=True) or {}
