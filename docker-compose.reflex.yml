@@ -1,0 +1,36 @@
+# DataHub Reflex — Production Deployment
+#
+# Start Reflex with its own SQLite persistence:
+#   docker compose -f docker-compose.reflex.yml up --build
+#
+# For live DataHub integration, first start DataHub Quickstart:
+#   python -m datahub docker quickstart
+# Then seed the graph:
+#   python scripts/seed_live_datahub.py seed
+
+services:
+  reflex:
+    build: .
+    container_name: reflex-app
+    ports:
+      - "5000:5000"
+    environment:
+      - REFLEX_UI_PORT=5000
+      - REFLEX_LLM_MODE=${REFLEX_LLM_MODE:-deterministic}
+      - REFLEX_LLM_API_KEY=${REFLEX_LLM_API_KEY:-}
+      - REFLEX_LLM_MODEL=${REFLEX_LLM_MODEL:-gpt-4o}
+      - REFLEX_API_SECRET=${REFLEX_API_SECRET:-change-me-in-production}
+      - DATAHUB_GMS_URL=${DATAHUB_GMS_URL:-http://localhost:8080}
+      - REFLEX_DB_PATH=/app/data/reflex.db
+      - REFLEX_LESSONS_DIR=/app/data
+    volumes:
+      - reflex-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  reflex-data:

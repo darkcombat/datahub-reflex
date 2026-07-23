@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Tests and dev
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+spikes/
+
+# Data (generated at runtime)
+datasets/approvals/
+datasets/output/
+datasets/extractions/
+datasets/*.db
+
+# Environment (use .env.example as template)
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
