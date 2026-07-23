@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import structlog
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from reflex.models import (
     Confidence,
@@ -90,8 +90,7 @@ class LessonExtractionResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
     confidence: Confidence = Confidence.MEDIUM
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 # -- Extraction rules (MVP — replace with LLM in production) ------------------
