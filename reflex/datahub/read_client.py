@@ -301,6 +301,28 @@ class DataHubReadClient:
 
     # -- Structured Properties ---------------------------------------------------
 
+    async def get_dataset_properties(self, entity_urn: str) -> dict[str, Any]:
+        """Read dataset custom properties in the resolver's normalized shape."""
+        query = """
+        query($urn: String!) {
+            entity(urn: $urn) {
+                ... on Dataset {
+                    properties { customProperties { key value } }
+                }
+            }
+        }
+        """
+        result = await self._query(query, {"urn": entity_urn})
+        custom = ((result.get("entity") or {}).get("properties") or {}).get("customProperties", [])
+        normalized: dict[str, Any] = {}
+        for item in custom:
+            key = str(item.get("key", ""))
+            if key.startswith("reflex."):
+                key = key.replace("reflex.", "reflex:", 1)
+            if key:
+                normalized[key] = item.get("value")
+        return normalized
+
     async def get_structured_properties(self, entity_urn: str) -> dict[str, Any]:
         """Get structured properties for an entity."""
         query = """

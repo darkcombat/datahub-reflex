@@ -62,7 +62,7 @@ A `ReflexLesson` is not valid (`is_confirmed = False`) until `confirmed_or_edite
 | `ReflexBacktester` | Runs controls against synthetic historical data | Reflex |
 | `ControlSynthesizer` | Generates typed controls from lessons | Reflex |
 | `SimilarityResolver` | Discovers similar assets (live DataHub or synthetic) | Reflex |
-| `DataHubSimilarityResolver` | Queries live DataHub via `searchAcrossEntities` (6 signals) | Reflex |
+| `DataHubSimilarityResolver` | Queries live DataHub via `searchAcrossEntities`, then enriches candidates with lineage and dataset properties before applying 6 inspectable signals | Reflex |
 | `ApprovalService` | Enforces mandatory human approval gates | Reflex |
 | `DataHubReadClient` | Reads incidents, lineage, ownership, etc. | DataHub |
 | `DataHubWriteClient` | Writes incidents, ownership, tags, structured properties | DataHub |
@@ -80,7 +80,7 @@ ReflexLesson (Reflex domain model — template-based or LLM-assisted)
     │
     ▼
 Similar Asset Discovery
-    ├── Live mode: DataHubSimilarityResolver → searchAcrossEntities (6 signals)
+    ├── Live mode: DataHubSimilarityResolver → searchAcrossEntities + lineage/properties enrichment (6 signals)
     └── Synthetic mode: SimilarityResolver → in-memory datasets
     │
     ▼

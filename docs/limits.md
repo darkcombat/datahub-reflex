@@ -45,7 +45,7 @@ workflow state is process-local and SQLite WAL initialization is not safe when
 multiple workers start concurrently.
 
 ### 2. Similarity resolution has two modes
-- **Live DataHub mode** (`use_live_datahub=True`): Uses `DataHubSimilarityResolver` which queries live DataHub via `searchAcrossEntities` (max 10 datasets), applies 6 signals (same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control), and raises an explicit `DataHubLiveQueryError` if DataHub is unreachable. It never falls back to synthetic data.
+- **Live DataHub mode** (`use_live_datahub=True`): Uses `DataHubSimilarityResolver` which queries live DataHub via `searchAcrossEntities` (max 10 datasets), refreshes the source metadata, and enriches candidates with lineage and dataset custom properties before applying 6 signals (same_domain, shared_tags, compatible_schema, append_only_vulnerability, similar_lineage, no_existing_control). It raises an explicit `DataHubLiveQueryError` if DataHub is unreachable and never falls back to synthetic data.
 - **Synthetic mode** (`use_live_datahub=False`, default): Uses the `SimilarityResolver` with in-memory datasets from `reflex.datahub.environment`.
 
 ### 3. Live DataHub integration tests exist but require running instance

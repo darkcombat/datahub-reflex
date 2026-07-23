@@ -30,6 +30,8 @@ from datahub.metadata.schema_classes import (
     CorpUserInfoClass,
     DatasetLineageTypeClass,
     DatasetPropertiesClass,
+    DomainPropertiesClass,
+    DomainsClass,
     OtherSchemaClass,
     SchemaFieldClass,
     SchemaFieldDataTypeClass,
@@ -56,6 +58,9 @@ DATASETS = {
     )
 }
 REFLEX_TAG = "urn:li:tag:reflex-demo-finance"
+FINANCE_TAG = "urn:li:tag:finance"
+APPEND_ONLY_TAG = "urn:li:tag:append-only"
+FINANCE_DOMAIN = "urn:li:domain:finance"
 
 
 def _emit(
@@ -99,8 +104,8 @@ def _seed_datasets(emitter: DatahubRestEmitter) -> None:
                 description="DataHub Reflex duplicate-rows demo asset",
                 customProperties={
                     "reflex.demo": "duplicate_rows",
-                    "reflex.write_pattern": "append-only",
-                    "reflex.has_idempotency_key": "false",
+                    "reflex:write_pattern": "append-only",
+                    "reflex:has_idempotency_key": "false",
                 },
             ),
         )
@@ -126,6 +131,7 @@ def _seed_datasets(emitter: DatahubRestEmitter) -> None:
                 fields=fields,
             ),
         )
+        _emit(emitter, urn, "domains", DomainsClass(domains=[FINANCE_DOMAIN]))
 
     _emit(
         emitter,
@@ -180,14 +186,28 @@ def _seed_users_and_ownership(emitter: DatahubRestEmitter) -> list[tuple[str, st
 
 async def seed() -> None:
     emitter = DatahubRestEmitter(gms_server=GMS_URL, openapi_ingestion=True)
+    _emit(
+        emitter,
+        FINANCE_DOMAIN,
+        "domainProperties",
+        DomainPropertiesClass(
+            name="Finance",
+            description="Finance data products used by the Reflex live demo",
+        ),
+        entity_type="domain",
+    )
     _seed_datasets(emitter)
     writer = DataHubWriteClient(gms_url=GMS_URL)
     ownership = _seed_users_and_ownership(emitter)
     for asset_urn, owner_urn in ownership:
         await writer.update_owner(asset_urn, owner_urn)
     await writer.create_tag("reflex-demo-finance", "reflex-demo-finance", "Reflex live demo asset")
+    await writer.create_tag("finance", "finance", "Finance domain data")
+    await writer.create_tag("append-only", "append-only", "Dataset uses append-only writes")
     for urn in DATASETS.values():
         await writer.add_tag(urn, REFLEX_TAG)
+        await writer.add_tag(urn, FINANCE_TAG)
+        await writer.add_tag(urn, APPEND_ONLY_TAG)
 
     incident = await writer.raise_incident(
         title="REFLEX DEMO: duplicate rows in reflex_finance_daily_ledger",

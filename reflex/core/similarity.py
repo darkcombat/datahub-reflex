@@ -13,6 +13,7 @@ Supported signals:
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -178,22 +179,32 @@ class SimilarityResolver:
         candidate_upstreams = self._get_upstreams(ds["urn"])
         candidate_downstreams = self._get_downstreams(ds["urn"])
 
-        # Shares an upstream or downstream with source
+        # Shares an upstream or downstream with source. A direct lineage edge
+        # is also meaningful for propagation (for example, daily -> monthly
+        # ledger in the live demo graph).
         shares_upstream = bool(set(source_upstreams) & set(candidate_upstreams))
         shares_downstream = bool(set(source_downstreams) & set(candidate_downstreams))
-        lineage_similar = shares_upstream or shares_downstream
+        directly_related = ds["urn"] in set(source_upstreams + source_downstreams)
+        lineage_similar = shares_upstream or shares_downstream or directly_related
 
         signals.append(SimilaritySignal(
             name="similar_lineage",
             weight=0.10,
             matched=lineage_similar,
-            detail=f"Shares upstream: {shares_upstream}, Shares downstream: {shares_downstream}" if lineage_similar else "No shared lineage position",
+            detail=(
+                f"Shares upstream: {shares_upstream}, Shares downstream: {shares_downstream}, "
+                f"Directly related: {directly_related}"
+            ) if lineage_similar else "No shared lineage position",
         ))
 
         # Signal 6: No equivalent active control (weight: 0.05)
-        has_reflex_tag = any(
-            t.startswith("reflex:") for t in ds.get("tags", [])
-        )
+        # A demo marker such as ``reflex-demo-finance`` is not an active
+        # preventive control. Only explicit coverage tags count here.
+        control_tags = {
+            "reflex:uniqueness-controlled",
+            "reflex:ownership-controlled",
+        }
+        has_reflex_tag = bool(control_tags & set(ds.get("tags", [])))
         signals.append(SimilaritySignal(
             name="no_existing_control",
             weight=0.05,
@@ -379,7 +390,30 @@ class DataHubSimilarityResolver(SimilarityResolver):
         """Fetch from DataHub and score with the same signals."""
         live_datasets = await self._fetch_datasets_from_datahub()
         self._datasets = live_datasets
-        self._lineage = []
+        # The base constructor ran before the live search populated the
+        # dataset list, so refresh the source lookup now.
+        self._source_ds = self._find_dataset(self.source_urn)
+
+        # Enrich search results with aspects not reliably returned by
+        # searchAcrossEntities. These are real DataHub reads, not fixture data.
+        async def enrich(dataset: dict[str, Any]) -> tuple[dict[str, Any], list[str], list[str]]:
+            urn = dataset["urn"]
+            upstream, downstream, properties = await asyncio.gather(
+                self._client.get_upstream_lineage(urn),
+                self._client.get_downstream_lineage(urn),
+                self._client.get_dataset_properties(urn),
+            )
+            dataset["structured_properties"] = properties
+            return dataset, upstream, downstream
+
+        enriched = await asyncio.gather(*(enrich(ds) for ds in live_datasets))
+        lineage: list[dict[str, Any]] = []
+        for dataset, upstream, downstream in enriched:
+            for upstream_urn in upstream:
+                lineage.append({"upstream": upstream_urn, "downstream": dataset["urn"]})
+            for downstream_urn in downstream:
+                lineage.append({"upstream": dataset["urn"], "downstream": downstream_urn})
+        self._lineage = lineage
 
         return await super().resolve(max_candidates=max_candidates, min_score=min_score)
 
