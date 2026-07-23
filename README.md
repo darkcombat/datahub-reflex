@@ -139,7 +139,49 @@ python scripts/seed_live_datahub.py reset
 python -m pytest tests/ -v -m "not requires_datahub"
 ```
 
-### Synthetic mode vs Live DataHub mode
+### Docker deployment
+
+```bash
+# Build and run Reflex with SQLite persistence
+docker compose -f docker-compose.reflex.yml up --build
+
+# With LLM API mode
+REFLEX_LLM_MODE=api REFLEX_LLM_API_KEY=sk-... docker compose -f docker-compose.reflex.yml up
+
+# With authentication
+REFLEX_API_SECRET=my-production-secret docker compose -f docker-compose.reflex.yml up
+```
+
+### API quick start
+
+```bash
+# Get an auth token
+curl -X POST http://localhost:5000/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"subject":"alice","role":"admin"}'
+
+# Analyze an incident
+curl -X POST http://localhost:5000/api/v1/incidents/urn:li:incident:demo/analyze \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"incident_title":"Test","incident_description":"Desc","incident_custom_type":"DUPLICATE_ROWS","human_confirmed_root_cause":"Retry bug","confirmed_by":"alice","target_asset_urn":"urn:li:dataset:(...)"}'
+
+# Execute a full run
+curl -X POST http://localhost:5000/api/v1/runs/test/execute \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"scenario":"duplicate_rows","target_field":"transaction_id",...}'
+
+# List all runs
+curl http://localhost:5000/api/v1/runs
+
+# Get audit trail
+curl http://localhost:5000/api/v1/runs/<run_id>/audit
+```
+
+Full API docs: see `reflex/api/routes.py` for all endpoints.
+
+## 8. Deployment
 
 Reflex can operate in two similarity-resolution modes:
 

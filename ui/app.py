@@ -28,6 +28,7 @@ from ui.demo_runner import (
 from reflex.api.routes import api_bp
 from reflex.persistence import init_db
 from reflex.api.errors import register_error_handlers
+from reflex.api.security import configure_security
 
 app = Flask(
     __name__,
@@ -41,6 +42,7 @@ except ValueError:
     pass  # Already registered in test collection
 init_db()
 register_error_handlers(app)
+configure_security(app)
 
 # -- Global demo runner (single-user demo) --
 _runner: DemoRunner | None = None

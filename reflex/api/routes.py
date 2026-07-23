@@ -33,6 +33,7 @@ from reflex.core.phase3_pipeline import Phase3Pipeline
 from reflex.core.phase4_pipeline import Phase4Pipeline
 from reflex.persistence import database as db
 from reflex.auth import create_token, require_auth, require_role
+from reflex.api.security import rate_limit
 
 api_bp = Blueprint("api_v1", __name__, url_prefix="/api/v1")
 
@@ -46,6 +47,7 @@ def health():
 
 
 @api_bp.post("/auth/token")
+@rate_limit
 def create_auth_token():
     """Create an authentication token. Requires REFLEX_API_SECRET in env."""
     data = request.get_json(silent=True) or {}
