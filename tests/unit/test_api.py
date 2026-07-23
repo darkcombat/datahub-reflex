@@ -197,3 +197,31 @@ class TestAPIRuns:
     def test_get_nonexistent_run(self, client):
         resp = client.get("/api/v1/runs/nonexistent")
         assert resp.status_code == 404
+
+    def test_execute_duplicate_rows(self, client, admin_headers):
+        resp = client.post("/api/v1/runs/urn:li:incident:exec-dup-001/execute",
+            data=json.dumps({"scenario": "duplicate_rows",
+                "incident_title": "Exec Test", "incident_description": "Test",
+                "human_confirmed_root_cause": "Retry bug",
+                "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,x,PROD)",
+                "target_field": "transaction_id"}),
+            headers=admin_headers)
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["scenario"] == "duplicate_rows"
+        assert data["is_complete"] is True
+        assert data["future_detected"] is True
+
+    def test_execute_orphaned_ownership(self, client, admin_headers):
+        resp = client.post("/api/v1/runs/urn:li:incident:exec-owner-001/execute",
+            data=json.dumps({"scenario": "orphaned_ownership",
+                "incident_title": "Ownership Test", "incident_description": "Inactive owner",
+                "human_confirmed_root_cause": "Offboarding gap",
+                "target_asset_urn": "urn:li:dataset:(urn:li:dataPlatform:bigquery,x,PROD)",
+                "inactive_owner_urn": "urn:li:corpuser:bob"}),
+            headers=admin_headers)
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["scenario"] == "orphaned_ownership"
+        assert data["is_complete"] is True
+        assert data["inactive_detected"] >= 1

@@ -190,7 +190,7 @@ def create_run(
 ) -> str:
     db = get_db()
     db.execute(
-        "INSERT INTO runs (id, scenario, status, mode_label, started_at) VALUES (?, ?, 'active', ?, ?)",
+        "INSERT OR REPLACE INTO runs (id, scenario, status, mode_label, started_at) VALUES (?, ?, 'active', ?, ?)",
         (run_id, scenario, mode_label, _now()),
     )
     _audit(run_id, "run.created", {"scenario": scenario, "mode": mode_label})
