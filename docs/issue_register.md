@@ -1,7 +1,7 @@
 # DataHub Reflex — Issue Register
 
 Generated: 2026-07-22 (updated 2026-07-23)
-Current commit: `b4eae24`
+Current commit: see `git log -1` (updated 2026-07-23)
 Branch: `main`
 Remote: `https://github.com/darkcombat/datahub-reflex.git`
 
@@ -38,12 +38,12 @@ Remote: `https://github.com/darkcombat/datahub-reflex.git`
 #### EXT-02 — Unchecked submission checklist items
 
 - **Severity**: EXTERNAL
-  - **Evidence**: `docs/submission_checklist.md` has 4 unchecked items:
+  - **Evidence**: `docs/submission_checklist.md` has 5 unchecked items:
   - Record public demo video under three minutes
   - Verify the video URL is public
-  - Re-run the full test commands and record outputs
   - Confirm Devpost category: `Agents That Do Real Work`
   - Add final repository URL and video URL to the Devpost submission
+  - Submit the prepared upstream patches, or document their post-submission status
 - **Affected file**: `docs/submission_checklist.md`
 - **Impact**: Checklist cannot be fully signed off without video and Devpost submission
 - **Recommended action**: Complete video recording (Day 18), then check remaining items

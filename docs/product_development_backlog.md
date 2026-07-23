@@ -27,7 +27,7 @@ The product is not:
 - Reflex-owned control execution and backtesting.
 - Explicit human approval gates in the UI path.
 - Synthetic and live modes are separated.
-- 90 offline/UI/evaluation tests pass.
+- 135 offline/unit/evaluation/UI tests pass.
 - 8 live DataHub integration tests pass.
 - Negative cases are included in the benchmark.
 - Two clean-checkout rehearsals pass.
