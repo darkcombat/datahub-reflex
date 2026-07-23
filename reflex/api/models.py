@@ -98,7 +98,7 @@ class LessonResponse:
     lesson_id: str
     title: str
     failure_category: str
-    failure_pattern: str
+    failure_pattern: str = ""
     trigger: str = ""
     vulnerable_characteristics: list[str] = field(default_factory=list)
     control_type: str = ""

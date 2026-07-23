@@ -32,6 +32,8 @@ Thumbs.db
 datasets/approvals/
 datasets/output/
 datasets/extractions/
+datasets/*.db
+datasets/reflex.db
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/

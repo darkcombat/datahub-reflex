@@ -26,6 +26,7 @@ from ui.demo_runner import (
     build_orphaned_ownership_history,
 )
 from reflex.api.routes import api_bp
+from reflex.persistence import init_db
 
 app = Flask(
     __name__,
@@ -33,7 +34,11 @@ app = Flask(
     static_folder="../static",
     static_url_path="/static",
 )
-app.register_blueprint(api_bp)
+try:
+    app.register_blueprint(api_bp)
+except ValueError:
+    pass  # Already registered in test collection
+init_db()
 
 # -- Global demo runner (single-user demo) --
 _runner: DemoRunner | None = None
