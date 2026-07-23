@@ -211,6 +211,11 @@ def api_approve():
     runner = _get_runner()
     data = request.get_json(silent=True) or {}
     decision = data.get("decision", "approved")
+    # Capture the pending gate before applying the decision.  The runner
+    # advances the workflow during apply_approval(), so deriving this from
+    # the post-approval step would misclassify the root-cause decision as a
+    # control decision in the audit trail.
+    pending_approval_type = "root_cause" if (runner.state.current_step or 0) <= 2 else "control"
     subject, _role = _get_authenticated_identity()
     approver = subject or data.get("approver", "demo-user")
     notes = data.get("notes", "Decision recorded in Reflex workspace.")
@@ -226,10 +231,9 @@ def api_approve():
 
     # Persist approval to SQLite
     if run_id:
-        approval_type = "root_cause" if (state.current_step or 0) <= 3 else "control"
-        db.save_approval(run_id, approval_type=approval_type, state=decision,
+        db.save_approval(run_id, approval_type=pending_approval_type, state=decision,
             approver=approver, notes=notes)
-        step = 3 if approval_type == "root_cause" else 7
+        step = 3 if pending_approval_type == "root_cause" else 7
         db.update_run(run_id, current_step=step)
 
     return jsonify(state_dict)

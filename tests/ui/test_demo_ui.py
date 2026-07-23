@@ -135,13 +135,21 @@ class TestAPIEndpoints:
         )
         assert resp.status_code == 400
 
-    def test_approve_endpoint(self, client):
+    def test_approve_endpoint(self, client, monkeypatch, tmp_path):
         """POST /api/approve sets approval state."""
-        client.post(
+        # The repository .env may point at a live DataHub instance. Keep this
+        # endpoint regression test deterministic and network-free.
+        import ui.app as ui_app
+        monkeypatch.setattr(
+            ui_app,
+            "_runner",
+            DemoRunner(lessons_dir=tmp_path, use_live_datahub=False),
+        )
+        run = client.post(
             "/api/run",
             data=json.dumps({"scenario": "duplicate_rows"}),
             content_type="application/json",
-        )
+        ).get_json()
         resp = client.post(
             "/api/approve",
             data=json.dumps({"decision": "approved", "approver": "tester"}),
@@ -154,6 +162,21 @@ class TestAPIEndpoints:
             content_type="application/json",
         ).get_json()
         assert data["approval_state"] == "approved"
+
+        # The first decision must be recorded as root-cause approval even
+        # though the runner advances to the next pending gate in the same
+        # request.
+        audit = client.get(f"/api/runs/{run['run_id']}").get_json()
+        assert audit["approvals"][0]["approval_type"] == "root_cause"
+
+        second = client.post(
+            "/api/approve",
+            data=json.dumps({"decision": "approved", "approver": "tester"}),
+            content_type="application/json",
+        ).get_json()
+        assert second["approval_state"] == "approved"
+        audit = client.get(f"/api/runs/{run['run_id']}").get_json()
+        assert [a["approval_type"] for a in audit["approvals"]][-1] == "control"
 
     def test_reject_endpoint(self, client):
         """POST /api/approve with reject."""
