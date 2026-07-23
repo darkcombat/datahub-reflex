@@ -38,7 +38,7 @@
 
 ## 1:30–1:50 — DataHub Write-Back
 
-**Visual**: UI steps 7–8. Approval: APPROVED (demo-mode). Publication: assertion definitions and run events stored in Reflex, structured properties and tags written to DataHub OSS.
+**Visual**: UI steps 7–8. Approval: APPROVED after the live human gate. Publication: assertion definitions and run events stored in Reflex, structured properties and tags written to DataHub OSS.
 **Voiceover**: "After human approval, Reflex publishes to DataHub: structured properties for coverage metadata, tags for discoverability. Assertion definitions and run events are Reflex-owned in OSS — the endpoints were removed in v1.5.0.6."
 
 **Show**: "REFLEX-OWNED" badge. "DataHub OSS v1.5.0.6 endpoints unavailable" note.
@@ -68,7 +68,7 @@
 **Visual**: Show what Reflex IS and IS NOT. Bullet points.
 **Voiceover**: "DataHub Reflex is not self-healing. It is not fully autonomous. It is not production-safe. It does not claim zero false positives or universal prevention. What it does: converts human-confirmed operational lessons into backtested, executable preventive controls propagated through the DataHub graph. Two scenarios. Six similarity signals. Mandatory human approval. Reflex-owned execution."
 
-**Show**: Apache 2.0 license badge. Test suite: 90 offline tests passing (unit/evaluation/UI), plus 8 live DataHub integration checks when GMS is running.
+**Show**: Apache 2.0 license badge. Test suite: 135 offline/unit/evaluation/UI tests passing, plus 8 live DataHub integration checks when GMS is running.
 
 ---
 

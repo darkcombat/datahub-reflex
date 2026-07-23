@@ -148,7 +148,7 @@ python -m pytest tests/ -v -m "not requires_datahub"
 docker compose -f docker-compose.reflex.yml up --build
 
 # With LLM API mode
-REFLEX_LLM_MODE=api REFLEX_LLM_API_KEY=sk-... docker compose -f docker-compose.reflex.yml up
+REFLEX_LLM_MODE=api REFLEX_LLM_API_KEY=<provider-api-key> docker compose -f docker-compose.reflex.yml up
 
 # With authentication
 REFLEX_API_SECRET=my-production-secret \\
@@ -399,7 +399,7 @@ Current implementation:
 - ✅ Explicit synthetic mode for offline development (live mode never silently falls back)
 - ✅ Live integration tests (8 DataHub integration checks)
 - ✅ Single-page UI (Flask + inline HTML, zero build step)
-- ✅ 90 tests passing (offline/UI/evaluation), 8 requiring live DataHub
+- ✅ 135 offline/unit/evaluation/UI tests passing, plus 8 live DataHub integration tests
 
 Future work:
 - LLM-based lesson extraction from arbitrary incident descriptions
