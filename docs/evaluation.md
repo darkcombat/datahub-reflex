@@ -135,9 +135,9 @@ In synthetic mode, domain, tag, and lineage signals are limited by the in-memory
 
 | Test Category | Count | Status |
 |--------------|-------|--------|
-| Offline, evaluation, and UI test suite | 138 | ✅ All pass |
+| Offline, evaluation, and UI test suite | 139 | ✅ All pass |
 | Live integration tests | 9 | ✅ Passed against the running DataHub OSS Quickstart |
-| **Current verified total** | **147** | **138 pass offline/unit/evaluation/UI, 9 pass live** |
+| **Current verified total** | **148** | **139 pass offline/unit/evaluation/UI, 9 pass live** |
 
 ## Known Limitations
 

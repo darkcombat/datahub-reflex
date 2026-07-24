@@ -79,7 +79,7 @@ The repository contains reproducible synthetic results and two baselines:
 - read-only DataHub agent;
 - full Reflex loop.
 
-The verified local suite contains 138 offline/unit/evaluation/UI tests and 9 live
+The verified local suite contains 139 offline/unit/evaluation/UI tests and 9 live
 DataHub integration checks. The benchmark reports GO for both MVP scenarios
 with negative cases. Synthetic results are not presented as production
 generalization.

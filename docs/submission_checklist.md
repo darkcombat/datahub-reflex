@@ -37,7 +37,7 @@
 - [ ] Record public demo video under three minutes
 - [ ] Verify the video URL is public
 - [x] Run the demo from a clean checkout (audit, CLI demo, and offline suite passed)
-- [x] Re-run the verification commands and record outputs (138 offline tests, 9 live tests, benchmark GO)
+- [x] Re-run the verification commands and record outputs (139 offline tests, 9 live tests, benchmark GO)
 - [ ] Confirm Devpost category: `Agents That Do Real Work`
 - [ ] Add final repository URL and video URL to the Devpost submission
 - [x] P0/P1 implementation complete for the current MVP (LLM client, approval-gated API surface)
