@@ -53,19 +53,30 @@
       return `<strong>${esc(approval.toUpperCase())}</strong>${action}`;
     }
     if (step === 8) return current < 8 || data?.approval_state !== 'approved' ? 'Publication follows explicit approval.' : data.publication_count ? `<strong>${esc(data.publication_count)} assets</strong> published to DataHub.` : 'Metadata and control results remain Reflex-owned because OSS assertion execution is unavailable.';
-    if (step === 9) return current < 9 || !data?.is_complete ? 'This proof appears after publication.' : `<strong>${esc(data.detection_assets_checked || 0)} assets</strong> checked for an analogous violation.`;
+    if (step === 9) {
+      if (current < 9 || !data?.is_complete) return 'This proof appears after publication.';
+      const violations = (data.detection_violations || []).filter((item) => item && item.passed === false);
+      const evidence = violations.length ? `<div class="detection-proof"><strong>Analogous violation detected</strong><br>${esc(violations[0].asset_urn || 'Protected asset')} · ${esc(violations[0].violation_count || 0)} violation(s)</div>` : '';
+      return `<strong>${esc(data.detection_assets_checked || 0)} assets</strong> checked for an analogous violation.${evidence}`;
+    }
     return '';
   };
   const renderSummary = (data) => {
     const target = $('#summary');
     if (!data?.incident_title) { target.innerHTML = '<div class="summary-empty"><span class="summary-icon" aria-hidden="true">✦</span><strong>Your run summary will appear here.</strong><p>Start an analysis to inspect evidence, backtest results and approval state.</p></div>'; return; }
     const backtest = data.backtest_snapshots ? `<div class="stat"><span>Backtest</span><strong>${esc(data.backtest_snapshots)} snapshots</strong></div><div class="stat"><span>Recall</span><strong>${esc(Math.round((data.backtest_recall || 0) * 100))}%</strong></div>` : '<div class="stat"><span>Backtest</span><strong>Pending</strong></div>';
-    target.innerHTML = `<div class="summary-callout"><span class="summary-icon" aria-hidden="true">✦</span><span><strong>${esc(data.incident_title)}</strong><small>Reflex is compiling reusable protection.</small></span></div><div class="stat"><span>Root cause</span><strong>${data.root_cause_approval_state === 'approved' ? 'Confirmed' : 'Needs review'}</strong></div>${backtest}<div class="stat"><span>Publication</span><strong>${esc(data.approval_state || 'Pending')}</strong></div><div class="stat"><span>Future coverage</span><strong>${data.detection_assets_checked !== undefined ? esc(data.detection_assets_checked + ' assets checked') : 'Not published'}</strong></div>`;
+    const proof = data.is_complete ? '<div class="proof-card"><div class="proof-heading"><span class="proof-icon" aria-hidden="true">✓</span><strong>Protection is active</strong></div><p>The approved lesson produced a control that caught an analogous failure on another asset.</p><div class="proof-chain"><span>Incident</span><i>→</i><span>Control</span><i>→</i><span>Backtest</span><i>→</i><span>Detection</span></div></div>' : '';
+    target.innerHTML = `${proof}<div class="summary-callout"><span class="summary-icon" aria-hidden="true">✦</span><span><strong>${esc(data.incident_title)}</strong><small>Reflex is compiling reusable protection.</small></span></div><div class="stat"><span>Root cause</span><strong>${data.root_cause_approval_state === 'approved' ? 'Confirmed' : 'Needs review'}</strong></div>${backtest}<div class="stat"><span>Publication</span><strong>${esc(data.approval_state || 'Pending')}</strong></div><div class="stat"><span>Future coverage</span><strong>${data.detection_assets_checked !== undefined ? esc(data.detection_assets_checked + ' assets checked') : 'Not published'}</strong></div>`;
   };
   const render = (data) => {
     state = data || {};
     const current = state.current_step || 0;
     $('#progress-label').textContent = state.is_complete ? 'Complete' : current ? `Step ${current} of 9` : 'Not started';
+    const progress = state.is_complete ? 9 : Math.max(0, Math.min(9, current));
+    const progressMeter = document.querySelector('.progress-meter');
+    if (progressMeter) { progressMeter.setAttribute('aria-valuenow', String(progress)); }
+    const progressFill = $('#progress-fill');
+    if (progressFill) progressFill.style.width = `${Math.round((progress / 9) * 100)}%`;
     $('#connection-status').textContent = state.error ? 'Action required' : state.is_complete ? 'Run complete' : current ? 'Analysis in progress' : 'Ready';
     $('#mode-label').textContent = String(state.mode_label || 'Synthetic mode').toLowerCase().includes('live') ? 'Live DataHub' : 'Synthetic mode';
     $('#workflow').innerHTML = STEPS.map(([title, intro, owner], index) => { const step = index + 1; const [status, cls] = statusFor(step, current, state.is_complete, state.error); return `<article class="step ${cls}"><div class="step-head"><span class="step-number">${step}</span><strong class="step-title">${title} ${ownerBadge(owner)}</strong><span class="step-status">${status}</span></div><span class="step-intro">${intro}</span><div class="step-body">${stateMessage(step, current, state)}</div></article>`; }).join('');

@@ -367,3 +367,12 @@ class TestUIHtmlContent:
         resp = client.get("/")
         html = resp.data.decode()
         assert 'id="start-button"' in html
+
+    def test_html_has_judge_facing_progress_and_proof_states(self, client):
+        """The UI exposes the two visual anchors used in the judge demo."""
+        page = client.get("/").data.decode()
+        script = client.get("/static/reflex.js").data.decode()
+        assert 'class="progress-meter"' in page
+        assert 'id="progress-fill"' in page
+        assert 'class=\"proof-card\"' in script
+        assert 'class=\"proof-chain\"' in script

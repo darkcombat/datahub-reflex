@@ -47,10 +47,13 @@
       <div class="actions"><button class="button primary" type="button" id="start-button"><span aria-hidden="true">▶</span> Start analysis</button><button class="button quiet" type="button" id="reset-button">Reset workspace</button></div>
     </section>
 
-    <div id="toast" class="toast" role="alert" aria-live="assertive" hidden></div>
+    <div id="toast" class="toast" role="alert" aria-live="polite" hidden></div>
     <section class="workspace-grid" aria-label="Reflex workflow">
       <section class="workflow-panel" aria-labelledby="workflow-title">
         <div class="section-title compact"><div><p class="eyebrow">2 · FOLLOW THE EVIDENCE</p><h2 id="workflow-title">Protection pipeline</h2></div><span class="progress-label" id="progress-label">Not started</span></div>
+        <div class="progress-meter" role="progressbar" aria-label="Reflex workflow progress" aria-valuemin="0" aria-valuemax="9" aria-valuenow="0">
+          <span id="progress-fill"></span>
+        </div>
         <div id="workflow" class="workflow" aria-live="polite"></div>
       </section>
       <aside class="summary-panel" aria-labelledby="summary-title">
