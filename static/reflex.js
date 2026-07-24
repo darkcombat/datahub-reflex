@@ -95,7 +95,10 @@
     const token = sessionStorage.getItem('reflex_token');
     if (token) headers['Authorization'] = `Bearer ${token}`;
     const response = await fetch(url, {...options, headers});
-    const payload = await response.json();
+    const contentType = response.headers.get('content-type') || '';
+    const payload = contentType.includes('application/json')
+      ? await response.json()
+      : {detail: `Reflex server returned HTTP ${response.status}. Restart the UI server and check its logs.`};
     if (response.status === 401) { authRequired = true; showAuthPanel('A valid token is required for this workspace.'); }
     if (!response.ok) throw new Error(payload.detail || payload.error || 'Request failed');
     if (authRequired) hideAuthPanel();
